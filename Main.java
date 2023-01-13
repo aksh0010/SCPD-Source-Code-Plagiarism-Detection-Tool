@@ -1,5 +1,5 @@
 import java.io.*;
-import java.util.Collections;
+// import java.util.Collections;
 import java.util.HashMap;
 // import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -17,6 +17,7 @@ public class Main {
   ) {
     if (map1.equals(map2)) {
       System.out.println("Files are 100% identical");
+      return;
     } else {
       /**Taking maximum no of tokens from both maps for percentage
        *
@@ -44,7 +45,7 @@ public class Main {
     );
     // System.out.println(map1.equals(map2));
     // map1.equals(map2);
-
+    return;
   }
 
   // !! ________________________________________________________________________________________________________
@@ -55,7 +56,7 @@ public class Main {
       File file1 = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp.c"
       );
-
+      //   creating file for the Second file we need to create signature.
       File file2 = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp2.c"
       );
@@ -93,12 +94,9 @@ public class Main {
     String words = new String(bytearray);
 
     // Need to get ride of junk words that is tab spaces and new line characters.
-
-    // words = words.replace("\r\n", "").replace("\n", "");
     words = words.replaceAll("\\s+", "");
 
     //  Stringtokenizer object to token the string words with param delimeters
-
     String syntax_for_c_language = ",.<>/?;:'\"`~[]{}\\|!@#$%^&*()-+_=";
 
     StringTokenizer tokenizer = new StringTokenizer(
@@ -106,18 +104,14 @@ public class Main {
       syntax_for_c_language
     );
 
-    // System.out.println(tokenizer.hasMoreTokens());
-
-    System.out.println("No of tokens in the file : "+tokenizer.countTokens());
+    System.out.println("No of tokens in the file : " + tokenizer.countTokens());
     int i = 1;
 
     while (tokenizer.hasMoreTokens()) {
-      Hash_map.put(i, tokenizer.nextToken());
-
-      // System.out.println(i + ")" + tokenizer.nextToken());
+      Hash_map.put(i, tokenizer.nextToken()); // populating hashmap with keys set in asceding order from 1
       i++;
     }
-    System.out.println("\n"+Hash_map);
+    System.out.println("\n" + Hash_map);
     System.out.println("_______________________________________________");
     fis.close();
 
