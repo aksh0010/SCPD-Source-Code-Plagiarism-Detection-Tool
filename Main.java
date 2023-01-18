@@ -8,11 +8,104 @@ import java.util.StringTokenizer;
 
 public class Main {
 
+  /*!Fingerprint Hashmaps
+   * Here two hashmaps are created to store the unique token extracted from files
+   */
   public static HashMap<String, Integer> fingerprintHashMap1 = new HashMap<>();
   public static HashMap<String, Integer> fingerprintHashMap2 = new HashMap<>();
+
+  /*!Operator Hashmaps
+   * Here two hashmaps are created to store the extracted operands from each files
+   * Note: It is defined which operatands to extract in operator_extraction function
+   */
+  public static HashMap<Character, Integer> operatorHashMap1 = new HashMap<>();
+  public static HashMap<Character, Integer> operatorHashMap2 = new HashMap<>();
+
   public static int common_tokens = 0;
   public static int no_of_tokens = 0; // Declaring this variable bcoz two maps could have different no of tokens so we need to choose a highest no of tokens to match and give percentage
 
+  // !! __________________________________________________________________________
+  // !!__________________________________ Main _____________________________________
+  // !! ___________________________________________________________________________
+  public static void main(String args[]) {
+    System.out.println(
+      "\n________________________________________________________________________________"
+    );
+    try {
+      File file1 = new File(
+        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp.c"
+      ); //   creating file for the first file we need to create signature.
+
+      File file2 = new File(
+        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp2.c"
+      ); //   creating file for the Second file we need to create signature.
+
+      fingerprintHashMap1 = Create_token(file1);
+      fingerprintHashMap2 = Create_token(file2);
+      fingerprint_comparison(fingerprintHashMap1, fingerprintHashMap2);
+
+      operatorHashMap1 = operator_extraction(file1);
+      operatorHashMap2 = operator_extraction(file2);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println(
+      "\n________________________________________________________________________________"
+    );
+  }
+
+  // !! __________________________________________________________________________
+  // !!_______________________________ Create Token ______________________________
+  // !! ___________________________________________________________________________
+
+  /*
+   * Method Create Token takes in a file and creteas a token
+   * removing all whitespaces and stores them
+   * in hashmap and returns it
+   *
+   */
+  public static HashMap<String, Integer> Create_token(File file)
+    throws IOException {
+    final HashMap<String, Integer> Local_Hash_map = new HashMap<>();
+
+    FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
+    byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
+    fis.read(bytearray);
+
+    String words = new String(bytearray); //  get the string value from byte []
+
+    // !!  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
+    words = words.replaceAll("\\s+", " ");
+    // !!
+    /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
+      Stringtokenizer object to token the string words with param delimeters
+    */
+    String syntax_for_c_language = ",.<>/?;:'\"`~[]{}\\|!@#$%^&*()-+_= ";
+
+    StringTokenizer tokenizer = new StringTokenizer(
+      words,
+      syntax_for_c_language
+    );
+
+    System.out.println("No of tokens in the file : " + tokenizer.countTokens());
+
+    while (tokenizer.hasMoreTokens()) {
+      String nextTokString = tokenizer.nextToken(); // taking next token
+      if (Local_Hash_map.containsKey(nextTokString)) {
+        Local_Hash_map.computeIfPresent(nextTokString, (k, v) -> v + 1);
+      } else {
+        Local_Hash_map.put(nextTokString, 1); // populating hashmap with keys set to 1 default      }
+      }
+    }
+    System.out.println("\n" + Local_Hash_map);
+    System.out.println("_______________________________________________");
+    fis.close();
+    return Local_Hash_map;
+  }
+
+  // !! __________________________________________________________________________
+  // !!___________________FingerPrint Coomparison_________________________________
+  // !! ___________________________________________________________________________
   public static void fingerprint_comparison(
     HashMap<String, Integer> map1,
     HashMap<String, Integer> map2
@@ -72,77 +165,78 @@ public class Main {
     return;
   }
 
-  // !! ________________________________________________________________________________________________________
-  // !! ________________________________________________________________________________________________________
-  public static void main(String args[]) {
-    try {
-      //   creating file for the first file we need to create signature.
-      File file1 = new File(
-        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp.c"
-      );
-      //   creating file for the Second file we need to create signature.
-      File file2 = new File(
-        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp2.c"
-      );
-      fingerprintHashMap1 = Create_token(file1);
+  // !! __________________________________________________________________________
+  // !!_____________________ Operator Extraction _________________________________
+  // !! ___________________________________________________________________________
 
-      fingerprintHashMap2 = Create_token(file2);
-
-      fingerprint_comparison(fingerprintHashMap1, fingerprintHashMap2);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  // !! ________________________________________________________________________________________________________
-  // !! ________________________________________________________________________________________________________
-
-  /*
-   * Method Create Token takes in a file and creteas a token
-   * removing all whitespaces and stores them
-   * in hashmap and returns it
-   *
-   */
-  public static HashMap<String, Integer> Create_token(File file)
+  public static HashMap<Character, Integer> operator_extraction(File file)
     throws IOException {
-    final HashMap<String, Integer> Hash_map = new HashMap<>();
-
-    //  opening the file stream for reading
+    /*!SECTION
+     * Popuplating it with necessary operands and
+     * by default 0 as their occurence
+     */
+    final HashMap<Character, Integer> Local_operator_HashMap = new HashMap<>();
+    Local_operator_HashMap.put('=', 0);
+    Local_operator_HashMap.put('-', 0);
+    Local_operator_HashMap.put('+', 0);
+    Local_operator_HashMap.put('*', 0);
+    Local_operator_HashMap.put('/', 0);
+    Local_operator_HashMap.put('%', 0);
+    Local_operator_HashMap.put('&', 0);
+    Local_operator_HashMap.put(',', 0);
+    Local_operator_HashMap.put('<', 0);
+    Local_operator_HashMap.put('>', 0);
+    // !! Creating a connection to original file1
     FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
-
-    //  byte[] to read data file in to byte array
-    byte bytearray[] = new byte[fis.available()];
+    byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
     fis.read(bytearray);
-
-    //  get the string value from byte []
-    String words = new String(bytearray);
-
-    // !!  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
-    words = words.replaceAll("\\s+", " ");
-    // !!
-    /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
-Stringtokenizer object to token the string words with param delimeters
-*/
-    String syntax_for_c_language = ",.<>/?;:'\"`~[]{}\\|!@#$%^&*()-+_= ";
-
-    StringTokenizer tokenizer = new StringTokenizer(
-      words,
-      syntax_for_c_language
-    );
-
-    System.out.println("No of tokens in the file : " + tokenizer.countTokens());
-
-    while (tokenizer.hasMoreTokens()) {
-      String nextTokString = tokenizer.nextToken(); // taking next token
-      if (Hash_map.containsKey(nextTokString)) {
-        Hash_map.computeIfPresent(nextTokString, (k, v) -> v + 1);
-      } else {
-        Hash_map.put(nextTokString, 1); // populating hashmap with keys set to 1 default      }
+    String words_file1 = new String(bytearray);
+    /*!SECTION
+     * Extract count for operands from each file
+     * for their comparison
+     * and giving plagarism score
+     *
+     */
+    for (int i = 0; i < words_file1.length(); i++) {
+      if (words_file1.charAt(i) == '=') {
+        Local_operator_HashMap.computeIfPresent('=', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '-') {
+        Local_operator_HashMap.computeIfPresent('-', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '+') {
+        Local_operator_HashMap.computeIfPresent('+', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '*') {
+        Local_operator_HashMap.computeIfPresent('*', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '/') {
+        Local_operator_HashMap.computeIfPresent('/', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '%') {
+        Local_operator_HashMap.computeIfPresent('%', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '&') {
+        Local_operator_HashMap.computeIfPresent('&', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == ',') {
+        Local_operator_HashMap.computeIfPresent(',', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '<') {
+        Local_operator_HashMap.computeIfPresent('<', (k, v) -> v + 1);
+      }
+      if (words_file1.charAt(i) == '>') {
+        Local_operator_HashMap.computeIfPresent('>', (k, v) -> v + 1);
       }
     }
-    System.out.println("\n" + Hash_map);
-    System.out.println("_______________________________________________");
+
+    System.out.println(
+      "\n\n Operand Hashmap has size" +
+      Local_operator_HashMap.size() +
+      " | " +
+      Local_operator_HashMap
+    );
     fis.close();
-    return Hash_map;
+    return Local_operator_HashMap;
   }
 }
