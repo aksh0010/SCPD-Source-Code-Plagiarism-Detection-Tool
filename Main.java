@@ -1,35 +1,60 @@
 import java.io.*;
 // import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 // import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Main {
 
-  public static HashMap<Integer, String> fingerprintHashMap1 = new HashMap<>();
-  public static HashMap<Integer, String> fingerprintHashMap2 = new HashMap<>();
+  public static HashMap<String, Integer> fingerprintHashMap1 = new HashMap<>();
+  public static HashMap<String, Integer> fingerprintHashMap2 = new HashMap<>();
   public static int common_tokens = 0;
   public static int no_of_tokens = 0; // Declaring this variable bcoz two maps could have different no of tokens so we need to choose a highest no of tokens to match and give percentage
 
   public static void fingerprint_comparison(
-    HashMap<Integer, String> map1,
-    HashMap<Integer, String> map2
+    HashMap<String, Integer> map1,
+    HashMap<String, Integer> map2
   ) {
+    // !! Checking set comaprison for subsets
+
+    Set<String> Keyset1 = new HashSet<String>();
+    Set<String> Keyset2 = new HashSet<String>();
+
+    Keyset1.addAll(map1.keySet());
+    Keyset2.addAll(map2.keySet());
+
+    // System.out.println(
+    //   "\n\n Keyset 1 size =" + Keyset1.size() + " |" + Keyset1
+    // );
+
+    // System.out.println(
+    //   "\n\n Keyset 2 size = " + Keyset2.size() + "|" + Keyset2
+    // );
+
     if (map1.equals(map2)) {
       System.out.println("Files are 100% identical");
       return;
+    } else if (Keyset1.containsAll(Keyset2)) {
+      System.out.println("\n\nFile 2 is a subset of File 1");
+      return;
+    } else if (Keyset2.containsAll(Keyset1)) {
+      System.out.println("\n\nFile 1 is a subset of File 2");
+      return;
     } else {
-      /**Taking maximum no of tokens from both maps for percentage
+      /**Taking maximum no of tokens from
+       * both maps for percentage
        *
        */
-      if (map1.values().size() > map2.values().size()) {
-        no_of_tokens = map1.values().size();
+      if (map1.keySet().size() > map2.keySet().size()) {
+        no_of_tokens = map1.keySet().size();
       } else {
-        no_of_tokens = map2.values().size();
+        no_of_tokens = map2.keySet().size();
       }
 
-      for (String iterable_element : map1.values()) {
-        if (map2.values().contains(iterable_element)) {
+      for (String iterable_element : map1.keySet()) {
+        if (map2.keySet().contains(iterable_element)) {
           common_tokens++;
         }
       }
@@ -43,8 +68,7 @@ public class Main {
       "/" +
       no_of_tokens
     );
-    // System.out.println(map1.equals(map2));
-    // map1.equals(map2);
+
     return;
   }
 
@@ -79,9 +103,9 @@ public class Main {
    * in hashmap and returns it
    *
    */
-  public static HashMap<Integer, String> Create_token(File file)
+  public static HashMap<String, Integer> Create_token(File file)
     throws IOException {
-    final HashMap<Integer, String> Hash_map = new HashMap<>();
+    final HashMap<String, Integer> Hash_map = new HashMap<>();
 
     //  opening the file stream for reading
     FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
@@ -93,11 +117,13 @@ public class Main {
     //  get the string value from byte []
     String words = new String(bytearray);
 
-    // Need to get ride of junk words that is tab spaces and new line characters.
-    words = words.replaceAll("\\s+", "");
-
-    //  Stringtokenizer object to token the string words with param delimeters
-    String syntax_for_c_language = ",.<>/?;:'\"`~[]{}\\|!@#$%^&*()-+_=";
+    // !!  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
+    words = words.replaceAll("\\s+", " ");
+    // !!
+    /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
+Stringtokenizer object to token the string words with param delimeters
+*/
+    String syntax_for_c_language = ",.<>/?;:'\"`~[]{}\\|!@#$%^&*()-+_= ";
 
     StringTokenizer tokenizer = new StringTokenizer(
       words,
@@ -105,16 +131,18 @@ public class Main {
     );
 
     System.out.println("No of tokens in the file : " + tokenizer.countTokens());
-    int i = 1;
 
     while (tokenizer.hasMoreTokens()) {
-      Hash_map.put(i, tokenizer.nextToken()); // populating hashmap with keys set in asceding order from 1
-      i++;
+      String nextTokString = tokenizer.nextToken(); // taking next token
+      if (Hash_map.containsKey(nextTokString)) {
+        Hash_map.computeIfPresent(nextTokString, (k, v) -> v + 1);
+      } else {
+        Hash_map.put(nextTokString, 1); // populating hashmap with keys set to 1 default      }
+      }
     }
     System.out.println("\n" + Hash_map);
     System.out.println("_______________________________________________");
     fis.close();
-
     return Hash_map;
   }
 }
