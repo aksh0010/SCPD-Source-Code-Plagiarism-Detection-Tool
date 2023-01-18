@@ -176,16 +176,7 @@ public class Main {
      * by default 0 as their occurence
      */
     final HashMap<Character, Integer> Local_operator_HashMap = new HashMap<>();
-    Local_operator_HashMap.put('=', 0);
-    Local_operator_HashMap.put('-', 0);
-    Local_operator_HashMap.put('+', 0);
-    Local_operator_HashMap.put('*', 0);
-    Local_operator_HashMap.put('/', 0);
-    Local_operator_HashMap.put('%', 0);
-    Local_operator_HashMap.put('&', 0);
-    Local_operator_HashMap.put(',', 0);
-    Local_operator_HashMap.put('<', 0);
-    Local_operator_HashMap.put('>', 0);
+
     // !! Creating a connection to original file1
     FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
     byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
@@ -197,36 +188,16 @@ public class Main {
      * and giving plagarism score
      *
      */
+    char[] operands = { '=', '-', '+', '*', '/', '%', '&', ',', '<', '>' }; // list of operands we need
+    /*NOTE - We can simply add new operands in char[] operands and
+     * it will automatically add it hashmap with by default 0 values
+     */
     for (int i = 0; i < words_file1.length(); i++) {
-      if (words_file1.charAt(i) == '=') {
-        Local_operator_HashMap.computeIfPresent('=', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '-') {
-        Local_operator_HashMap.computeIfPresent('-', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '+') {
-        Local_operator_HashMap.computeIfPresent('+', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '*') {
-        Local_operator_HashMap.computeIfPresent('*', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '/') {
-        Local_operator_HashMap.computeIfPresent('/', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '%') {
-        Local_operator_HashMap.computeIfPresent('%', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '&') {
-        Local_operator_HashMap.computeIfPresent('&', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == ',') {
-        Local_operator_HashMap.computeIfPresent(',', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '<') {
-        Local_operator_HashMap.computeIfPresent('<', (k, v) -> v + 1);
-      }
-      if (words_file1.charAt(i) == '>') {
-        Local_operator_HashMap.computeIfPresent('>', (k, v) -> v + 1);
+      for (char j : operands) {
+        if (words_file1.charAt(i) == j) {
+          Local_operator_HashMap.computeIfAbsent(j, (k -> 0));
+          Local_operator_HashMap.computeIfPresent(j, (k, v) -> v + 1);
+        }
       }
     }
 
