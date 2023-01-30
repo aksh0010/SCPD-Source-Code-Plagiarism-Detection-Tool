@@ -1,9 +1,13 @@
+/**
+ *  @author: AKSH SANJAYBHAI PATEL
+ *  @Institution : University of Windsor
+ *  @E-mail : akshpatelofficial@gmail.com
+ */
+
 import java.io.*;
-// import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-// import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -188,7 +192,7 @@ public class Main {
      * and giving plagarism score
      *
      */
-    char[] operands = { '=', '-', '+', '*', '/', '%', '&', ',', '<', '>' }; // list of operands we need
+    char[] operands = { '=', '-', '+', '*', '/', '%', '&', ',', '<', '>' }; // list of operands we need for extraction
     /*NOTE - We can simply add new operands in char[] operands and
      * it will automatically add it hashmap with by default 0 values
      */
@@ -202,7 +206,7 @@ public class Main {
     }
 
     System.out.println(
-      "\n\n Operand Hashmap has size" +
+      "\n\n Operand Hashmap has size = " +
       Local_operator_HashMap.size() +
       " | " +
       Local_operator_HashMap
