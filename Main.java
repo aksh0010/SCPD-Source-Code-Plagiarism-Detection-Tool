@@ -7,10 +7,15 @@
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
+
+  static final int REGEX_TOKEN_SIZE = 5; //this token size is needed for regex token comparison and cant be changes
 
   /*!Fingerprint Hashmaps
    * Here two hashmaps are created to store the unique token extracted from files
@@ -28,6 +33,116 @@ public class Main {
   public static int common_tokens = 0;
   public static int no_of_tokens = 0; // Declaring this variable bcoz two maps could have different no of tokens so we need to choose a highest no of tokens to match and give percentage
 
+  public static int operand_file1 = 0;
+  public static int operand_file2 = 0;
+
+  // !! __________________________________________________________________________
+  // !!______________________ Regex Comparison Function ________________________
+  // !! ___________________________________________________________________________
+  /* public static void regex_comparison(
+    HashMap<Character, Integer> map1,
+    HashMap<Character, Integer> map2
+  ) {
+    Matcher matcher;
+    Pattern pattern;
+    Random random = new Random();
+    int rand = 0;
+    String random_pattern = "";
+    int count_matches = 0;
+    int total_comparison = words1.length() - REGEX_TOKEN_SIZE;
+    // int total_comparison = 3;
+    try {
+      map1.forEach((token, frequency) -> {
+        System.out.println(token + " => " + frequency);
+      });
+
+
+      for (int i = 0; i < words1.length() - REGEX_TOKEN_SIZE - 1; i++) {
+        rand = random.nextInt(words1.length() - REGEX_TOKEN_SIZE);
+        random_pattern = words1.substring(rand, rand + REGEX_TOKEN_SIZE);
+        // if(rand !=0) break;
+        pattern = Pattern.compile("print", Pattern.CASE_INSENSITIVE);
+
+        // for (int j = 0; j < words2.length(); j++) {
+        matcher = pattern.matcher(words2);
+        boolean matchFound = matcher.find();
+        if (matchFound) {
+          count_matches++;
+          System.out.println("Match found");
+        } else {
+          System.out.println("Match not found");
+        }
+        // }
+      }
+      System.out.println(
+        "COunt match : " + count_matches + " Total tokens : " + total_comparison
+      );
+      System.out.println(
+        "Regex Comparison : " + count_matches * 100 / total_comparison + "%"
+      );
+    } catch (Exception e) {
+      System.err.println(e);
+    }
+  }*/
+
+  // !! __________________________________________________________________________
+  // !!______________________ string_from_file Function ________________________
+  // !! ___________________________________________________________________________
+
+  /*!String From file function
+   * I noticed code was multipled so decided to make a function
+   * to make it resuable
+   */
+  public static String string_from_file(File file) throws IOException {
+    String file_words = "";
+    try (FileInputStream Local_file = new FileInputStream(file)) {
+      byte bytearray[] = new byte[Local_file.available()]; //  byte[] to read data file in to byte array
+      Local_file.read(bytearray);
+      file_words = new String(bytearray); //  get the string value from byte []
+      file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
+    } catch (Exception e) {
+      System.err.println(e);
+    }
+    return file_words;
+  }
+
+  // !! __________________________________________________________________________
+  // !!______________________ Operand Comparison Function ________________________
+  // !! ___________________________________________________________________________
+
+  public static void operand_comparison(
+    HashMap<Character, Integer> map1,
+    HashMap<Character, Integer> map2
+  ) {
+    for (Integer iterable_element : map1.values()) {
+      operand_file1 += iterable_element;
+    }
+    for (Integer iterable_element : map2.values()) {
+      operand_file2 += iterable_element;
+    }
+
+    System.out.println(" Total Operands in File 1 :" + operand_file1);
+    System.out.println(" Total Operands in File 2 :" + operand_file2);
+
+    if (operand_file1 < operand_file2) {
+      System.out.println(
+        "Operands used per file ratio for file1:file2 -> " +
+        operand_file1 *
+        100 /
+        operand_file2 +
+        '%'
+      );
+    } else {
+      System.out.println(
+        "Operands used per file ratio for file2:File1 -> " +
+        operand_file2 *
+        100 /
+        operand_file1 +
+        '%'
+      );
+    }
+  }
+
   // !! __________________________________________________________________________
   // !!__________________________________ Main _____________________________________
   // !! ___________________________________________________________________________
@@ -43,6 +158,11 @@ public class Main {
       File file2 = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp2.c"
       ); //   creating file for the Second file we need to create signature.
+      /**NOTE - Regex expression Below.
+       *
+       *
+       */
+      // regex_comparison(string_from_file(file1), string_from_file(file2));
 
       fingerprintHashMap1 = Create_token(file1);
       fingerprintHashMap2 = Create_token(file2);
@@ -50,6 +170,7 @@ public class Main {
 
       operatorHashMap1 = operator_extraction(file1);
       operatorHashMap2 = operator_extraction(file2);
+      operand_comparison(operatorHashMap1, operatorHashMap2);
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -72,15 +193,17 @@ public class Main {
     throws IOException {
     final HashMap<String, Integer> Local_Hash_map = new HashMap<>();
 
-    FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
-    byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
-    fis.read(bytearray);
+    // FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
+    // byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
+    // fis.read(bytearray);
 
-    String words = new String(bytearray); //  get the string value from byte []
+    // String words = new String(bytearray); //  get the string value from byte []
 
-    // !!  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
-    words = words.replaceAll("\\s+", " ");
-    // !!
+    // // !!  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
+    // words = words.replaceAll("\\s+", " ");
+
+    String words = string_from_file(file);
+
     /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
       Stringtokenizer object to token the string words with param delimeters
     */
@@ -103,18 +226,18 @@ public class Main {
     }
     System.out.println("\n" + Local_Hash_map);
     System.out.println("_______________________________________________");
-    fis.close();
+    // fis.close();
     return Local_Hash_map;
   }
 
   // !! __________________________________________________________________________
-  // !!___________________FingerPrint Coomparison_________________________________
+  // !!___________________FingerPrint Comparison_________________________________
   // !! ___________________________________________________________________________
   public static void fingerprint_comparison(
     HashMap<String, Integer> map1,
     HashMap<String, Integer> map2
   ) {
-    // !! Checking set comaprison for subsets
+    // !! Checking set comprison for subsets
 
     Set<String> Keyset1 = new HashSet<String>();
     Set<String> Keyset2 = new HashSet<String>();
@@ -122,16 +245,8 @@ public class Main {
     Keyset1.addAll(map1.keySet());
     Keyset2.addAll(map2.keySet());
 
-    // System.out.println(
-    //   "\n\n Keyset 1 size =" + Keyset1.size() + " |" + Keyset1
-    // );
-
-    // System.out.println(
-    //   "\n\n Keyset 2 size = " + Keyset2.size() + "|" + Keyset2
-    // );
-
     if (map1.equals(map2)) {
-      System.out.println("Files are 100% identical");
+      System.out.println("Files are 100% identical by Text");
       return;
     } else if (Keyset1.containsAll(Keyset2)) {
       System.out.println("\n\nFile 2 is a subset of File 1");
@@ -182,10 +297,11 @@ public class Main {
     final HashMap<Character, Integer> Local_operator_HashMap = new HashMap<>();
 
     // !! Creating a connection to original file1
-    FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
-    byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
-    fis.read(bytearray);
-    String words_file1 = new String(bytearray);
+    // FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
+    // byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
+    // fis.read(bytearray);
+    // String words_file1 = new String(bytearray);
+    String words_file1 = string_from_file(file);
     /*!SECTION
      * Extract count for operands from each file
      * for their comparison
@@ -193,7 +309,7 @@ public class Main {
      *
      */
     char[] operands = { '=', '-', '+', '*', '/', '%', '&', ',', '<', '>' }; // list of operands we need for extraction
-    /*NOTE - We can simply add new operands in char[] operands and
+    /*We can simply add new operands in char[] operands and
      * it will automatically add it hashmap with by default 0 values
      */
     for (int i = 0; i < words_file1.length(); i++) {
@@ -211,7 +327,7 @@ public class Main {
       " | " +
       Local_operator_HashMap
     );
-    fis.close();
+    // fis.close();
     return Local_operator_HashMap;
   }
 }
