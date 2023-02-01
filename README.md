@@ -7,9 +7,9 @@ student can modify the code, but the requirement is to learn about different way
 it their work. 
 
 Secondly, knowledge of program similarities techniques such as follows (but not the only ones):
-    i. Fingerprint based 
-    ii. String based
-    iii. Parameterized
-    iv. Structural behavior
-    v. Semantic Approach
-    vi. The behavior of a program 
+   1) Fingerprint based 
+   2) String based
+   3) Parameterized
+   4) Structural behavior
+   5) Semantic Approach
+   6) The behavior of a program 
