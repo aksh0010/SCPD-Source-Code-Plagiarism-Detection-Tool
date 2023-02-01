@@ -13,6 +13,7 @@ Such level could be as below
    4) Level 4 :Modifying functions (e.g. modifying signature, merging and creating new functions).
    5) Level 5 :Changing program statements to semantic equivalents(e.g. for to while, if to switch).
    6) Level 6 :Changes in decision logic and modifying expressions.
+   reference @ Academic_Source_Code_Plagiarism_Detection_by_Measuring_Program_Behavioral_Similarity by HAYDEN CHEERS , YUQING LIN , AND SHAMUS P. SMITH
 
 Secondly, knowledge of program similarities techniques such as follows (but not the only ones):
    1) Fingerprint based 
