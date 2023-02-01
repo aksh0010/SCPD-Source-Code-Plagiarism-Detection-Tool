@@ -121,8 +121,8 @@ public class Main {
       operand_file2 += iterable_element;
     }
 
-    System.out.println(" Total Operands in File 1 :" + operand_file1);
-    System.out.println(" Total Operands in File 2 :" + operand_file2);
+    System.out.println(" Total Operands in File 1 -> " + operand_file1);
+    System.out.println(" Total Operands in File 2 -> " + operand_file2);
 
     if (operand_file1 < operand_file2) {
       System.out.println(
@@ -192,16 +192,6 @@ public class Main {
   public static HashMap<String, Integer> Create_token(File file)
     throws IOException {
     final HashMap<String, Integer> Local_Hash_map = new HashMap<>();
-
-    // FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
-    // byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
-    // fis.read(bytearray);
-
-    // String words = new String(bytearray); //  get the string value from byte []
-
-    // // !!  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
-    // words = words.replaceAll("\\s+", " ");
-
     String words = string_from_file(file);
 
     /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
@@ -214,7 +204,9 @@ public class Main {
       syntax_for_c_language
     );
 
-    System.out.println("No of tokens in the file : " + tokenizer.countTokens());
+    System.out.println(
+      "No of tokens in the file -> " + tokenizer.countTokens()
+    );
 
     while (tokenizer.hasMoreTokens()) {
       String nextTokString = tokenizer.nextToken(); // taking next token
@@ -226,7 +218,7 @@ public class Main {
     }
     System.out.println("\n" + Local_Hash_map);
     System.out.println("_______________________________________________");
-    // fis.close();
+
     return Local_Hash_map;
   }
 
@@ -296,11 +288,6 @@ public class Main {
      */
     final HashMap<Character, Integer> Local_operator_HashMap = new HashMap<>();
 
-    // !! Creating a connection to original file1
-    // FileInputStream fis = new FileInputStream(file); //opens a connection to an actual file
-    // byte bytearray[] = new byte[fis.available()]; //  byte[] to read data file in to byte array
-    // fis.read(bytearray);
-    // String words_file1 = new String(bytearray);
     String words_file1 = string_from_file(file);
     /*!SECTION
      * Extract count for operands from each file
@@ -321,13 +308,7 @@ public class Main {
       }
     }
 
-    System.out.println(
-      "\n\n Operand Hashmap has size = " +
-      Local_operator_HashMap.size() +
-      " | " +
-      Local_operator_HashMap
-    );
-    // fis.close();
+    System.out.println("\n\n Operand Hashmap -> " + Local_operator_HashMap);
     return Local_operator_HashMap;
   }
 }
