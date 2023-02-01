@@ -86,6 +86,22 @@ public class Main {
   }*/
 
   // !! __________________________________________________________________________
+  // !!______________________ Process for compilation Function ________________________
+  // !! ___________________________________________________________________________
+
+  public static void CompileCprog(String filename, File directory_path) {
+    System.out.println("Compiling c file .....");
+    try {
+      //   String exeName = filename.substring(0, filename.length() - 2);
+      Process p = Runtime
+        .getRuntime()
+        .exec("cmd /C gcc " + filename, null, directory_path);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  // !! __________________________________________________________________________
   // !!______________________ string_from_file Function ________________________
   // !! ___________________________________________________________________________
 
@@ -154,15 +170,24 @@ public class Main {
       File file1 = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp.c"
       ); //   creating file for the first file we need to create signature.
+      File file1_path = new File(
+        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
+      ); //   creating file for the first file we need to create signature.
 
       File file2 = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp2.c"
       ); //   creating file for the Second file we need to create signature.
-      /**NOTE - Regex expression Below.
+
+      File file2_path = new File(
+        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
+      );
+      /**NOTE - C complier function Below.
        *
        *
        */
-      // regex_comparison(string_from_file(file1), string_from_file(file2));
+
+      CompileCprog("Temp.c", file1_path);
+      CompileCprog("Temp2.c", file2_path);
 
       fingerprintHashMap1 = Create_token(file1);
       fingerprintHashMap2 = Create_token(file2);
