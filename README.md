@@ -1,4 +1,4 @@
-# SCPD
+# SCPD- Source Code Plagiarism Detection 
 This program is made to detect similarities amongst two 'c' programs/Files.
 
 
