@@ -1,2 +1,2 @@
 # SCPD
-This program is to detect similarities between two coding files
+This program is made to detect similarities amongst two 'c' programs/Files.
