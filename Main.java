@@ -37,67 +37,31 @@ public class Main {
   public static int operand_file2 = 0;
 
   // !! __________________________________________________________________________
-  // !!______________________ Regex Comparison Function ________________________
-  // !! ___________________________________________________________________________
-  /* public static void regex_comparison(
-    HashMap<Character, Integer> map1,
-    HashMap<Character, Integer> map2
-  ) {
-    Matcher matcher;
-    Pattern pattern;
-    Random random = new Random();
-    int rand = 0;
-    String random_pattern = "";
-    int count_matches = 0;
-    int total_comparison = words1.length() - REGEX_TOKEN_SIZE;
-    // int total_comparison = 3;
-    try {
-      map1.forEach((token, frequency) -> {
-        System.out.println(token + " => " + frequency);
-      });
-
-
-      for (int i = 0; i < words1.length() - REGEX_TOKEN_SIZE - 1; i++) {
-        rand = random.nextInt(words1.length() - REGEX_TOKEN_SIZE);
-        random_pattern = words1.substring(rand, rand + REGEX_TOKEN_SIZE);
-        // if(rand !=0) break;
-        pattern = Pattern.compile("print", Pattern.CASE_INSENSITIVE);
-
-        // for (int j = 0; j < words2.length(); j++) {
-        matcher = pattern.matcher(words2);
-        boolean matchFound = matcher.find();
-        if (matchFound) {
-          count_matches++;
-          System.out.println("Match found");
-        } else {
-          System.out.println("Match not found");
-        }
-        // }
-      }
-      System.out.println(
-        "COunt match : " + count_matches + " Total tokens : " + total_comparison
-      );
-      System.out.println(
-        "Regex Comparison : " + count_matches * 100 / total_comparison + "%"
-      );
-    } catch (Exception e) {
-      System.err.println(e);
-    }
-  }*/
-
-  // !! __________________________________________________________________________
   // !!______________________ Process for compilation Function ________________________
   // !! ___________________________________________________________________________
 
-  public static void CompileCprog(String filename, File directory_path) {
-    System.out.println("Compiling c file .....");
+  public static long ExecSpeedOf_Cprog(String filename, File directory_path)
+    throws InterruptedException {
+    long startTime;
+    long elapsedTime;
     try {
-      //   String exeName = filename.substring(0, filename.length() - 2);
+      startTime = System.nanoTime();
       Process p = Runtime
         .getRuntime()
-        .exec("cmd /C gcc " + filename, null, directory_path);
+        .exec("cmd /C gcc -Wall " + filename, null, directory_path);
+      int exit_code = p.waitFor();
+
+      if (exit_code == 0) {
+        elapsedTime = System.nanoTime() - startTime;
+        System.out.println("Compiling " + filename + " was a success ^_^");
+        return (elapsedTime / 1000000);
+      } else {
+        System.out.println("Error Compiling " + filename + " file .....");
+        return -1;
+      }
     } catch (IOException e) {
       e.printStackTrace();
+      return -1;
     }
   }
 
@@ -115,6 +79,7 @@ public class Main {
       byte bytearray[] = new byte[Local_file.available()]; //  byte[] to read data file in to byte array
       Local_file.read(bytearray);
       file_words = new String(bytearray); //  get the string value from byte []
+      file_words = comment_removal_from_c_file_string(file_words);
       file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
     } catch (Exception e) {
       System.err.println(e);
@@ -185,10 +150,19 @@ public class Main {
        *
        *
        */
+      long file1_time = ExecSpeedOf_Cprog("Temp.c", file1_path);
+      long file2_time = ExecSpeedOf_Cprog("Temp2.c", file2_path);
 
-      CompileCprog("Temp.c", file1_path);
-      CompileCprog("Temp2.c", file2_path);
-
+      System.out.println(
+        "Execution speed of file 1 in milli seconds " + file1_time
+      );
+      System.out.println(
+        "Execution speed of file 2 in milli seconds " + file2_time
+      );
+      System.out.println(
+        "Difference between execution speeds is " +
+        Math.abs(file2_time - file1_time)
+      );
       fingerprintHashMap1 = Create_token(file1);
       fingerprintHashMap2 = Create_token(file2);
       fingerprint_comparison(fingerprintHashMap1, fingerprintHashMap2);
@@ -202,6 +176,30 @@ public class Main {
     System.out.println(
       "\n________________________________________________________________________________"
     );
+  }
+
+  // !! __________________________________________________________________________
+  // !!_______________________________ Remove comments from files ______________________________
+  // !! ___________________________________________________________________________
+  /*!SECTION
+   * Removing both types of comments from the files before tokening
+   */
+  public static String comment_removal_from_c_file_string(String input) {
+    for (int i = 0; i < input.length() - 2; i++) {
+      if (input.charAt(i) == '/' && input.charAt(i + 1) == '/') {
+        int index_of_newlineChar = input.indexOf("\n", i);
+        String string_to_delete = input.substring(i, index_of_newlineChar);
+
+        input = input.replaceAll(string_to_delete, "");
+      } else if (input.charAt(i) == '/' && input.charAt(i + 1) == '*') {
+        int index_of_newlineChar = input.indexOf("*/", i);
+        String string_to_delete = input.substring(i, index_of_newlineChar);
+
+        input = input.replaceAll(string_to_delete, "");
+      }
+    }
+
+    return input;
   }
 
   // !! __________________________________________________________________________
@@ -222,6 +220,7 @@ public class Main {
     /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
       Stringtokenizer object to token the string words with param delimeters
     */
+
     String syntax_for_c_language = ",.<>/?;:'\"`~[]{}\\|!@#$%^&*()-+_= ";
 
     StringTokenizer tokenizer = new StringTokenizer(
