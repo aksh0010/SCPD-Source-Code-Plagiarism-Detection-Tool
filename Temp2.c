@@ -3,12 +3,10 @@
 int main()
 {
   int c, n, f = 1;
-// I am that guy
   printf("Enter a number to calculate its factorial\n");
   scanf("%d", &n);
   for (c = 1; c <= n; c++)
     f = f * c;
-
   printf("Factorial of %d = %d\n", n, f);
 
   return 0;
