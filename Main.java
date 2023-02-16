@@ -5,7 +5,6 @@
  */
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,12 +13,33 @@ import java.util.StringTokenizer;
 public class Main {
 
   // static final int REGEX_TOKEN_SIZE = 5; //this token size is needed for regex token comparison and cant be changes
-  static final int execution_average_constant = 10; // constant to use for 10 times of iteration for average execution speed of single file
-  public static int common_tokens = 0;
-  public static int no_of_tokens = 0; // Declaring this variable bcoz two maps could have different no of tokens so we need to choose a highest no of tokens to match and give percentage
+  static final int execution_average_constant = 1; // constant to use for 10 times of iteration for average execution speed of single file
+  static final int percentage_above_isPlagried = 50;
 
-  public static int operand_file1 = 0;
-  public static int operand_file2 = 0;
+  static final String file1_name = "Temp.c";
+  static final File file1 = new File(
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\" +
+    file1_name
+  ); //   creating file for the first file we need to create signature.
+  static final File file1_path = new File(
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
+  ); //   creating file for the first file we need to create signature.
+
+  static final String file2_name = "Temp2.c";
+  static final File file2 = new File(
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\" +
+    file2_name
+  ); //   creating file for the Second file we need to create signature.
+
+  static final File file2_path = new File(
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
+  );
+
+  // public static int common_tokens = 0;
+  // public static int no_of_tokens = 0; // Declaring this variable bcoz two maps could have different no of tokens so we need to choose a highest no of tokens to match and give percentage
+
+  // public static int operand_file1 = 0;
+  // public static int operand_file2 = 0;
   /*!Fingerprint Hashmaps
    * Here two hashmaps are created to store the unique token extracted from files
    */
@@ -33,59 +53,6 @@ public class Main {
   public static HashMap<Character, Integer> operatorHashMap1 = new HashMap<>();
   public static HashMap<Character, Integer> operatorHashMap2 = new HashMap<>();
 
-  /*  
-  public static boolean isPlagiarized(
-    String input,
-    String database,
-    double threshold
-  ) {
-    String[] dbTexts = database.split("\\r?\\n");
-    for (String inputPiece : input.split("\\r?\\n")) {
-      for (String dbText : dbTexts) {
-        double similarity =
-          1 -
-          (
-            (double) LevenshteinDistance(inputPiece, dbText) /
-            Math.max(inputPiece.length(), dbText.length())
-          );
-        if (similarity >= threshold) {
-          return true; // input string is plagiarized
-        }
-      }
-    }
-    return false; // input string is not plagiarized
-  }
-
-  public static int LevenshteinDistance(String s, String t) {
-    int m = s.length();
-    int n = t.length();
-    int[][] distance = new int[m + 1][n + 1];
-
-    for (int i = 0; i <= m; i++) {
-      distance[i][0] = i;
-    }
-    for (int j = 0; j <= n; j++) {
-      distance[0][j] = j;
-    }
-
-    for (int j = 1; j <= n; j++) {
-      for (int i = 1; i <= m; i++) {
-        if (s.charAt(i - 1) == t.charAt(j - 1)) {
-          distance[i][j] = distance[i - 1][j - 1];
-        } else {
-          distance[i][j] =
-            Math.min(
-              distance[i - 1][j],
-              Math.min(distance[i][j - 1], distance[i - 1][j - 1])
-            ) +
-            1;
-        }
-      }
-    }
-
-    return distance[m][n];
-  }
-*/
   // !!_______________________________________________________________________________________________
   public static int token_edit_distance_algorithm(String s1, String s2) {
     String[] tokens1 = s1.split("\\s+");
@@ -112,13 +79,27 @@ public class Main {
     System.out.println(
       "_______________________________________________TOKEN EDIT DISTANCE ALGORITHM OUTPUT _______________________________________________"
     );
-    if (dp[tokens1.length][tokens2.length] == 0) {
+    double common_tokens = dp[tokens1.length][tokens2.length];
+    double total_tokens = tokens1.length + tokens2.length;
+    double percentage = 100 - ((common_tokens * 100) / total_tokens);
+    System.out.println(
+      "Similarity score using edit token algo : " + percentage
+    );
+    if (percentage == 0) {
+      System.out.println("The two strings are not similar.");
+    } else if (percentage >= percentage_above_isPlagried) {
+      System.out.println("The two strings are likely to be plagiarized.");
+    } else if (percentage == 100) {
+      System.out.println("The two strings are identical");
+    }
+
+    /* if (dp[tokens1.length][tokens2.length] == 0) {
       System.out.println("The two strings are identical.");
     } else if (dp[tokens1.length][tokens2.length] <= 3) {
       System.out.println("The two strings are likely to be plagiarized.");
     } else {
       System.out.println("The two strings are not similar.");
-    }
+    } */
     return dp[tokens1.length][tokens2.length];
   }
 
@@ -130,7 +111,8 @@ public class Main {
       "\n________________________________________________________________________________________________________________________________"
     );
     try {
-      File file1 = new File(
+      // delcaring below as final so we cant edit them throgh out code
+      /*   File file1 = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp.c"
       ); //   creating file for the first file we need to create signature.
       File file1_path = new File(
@@ -143,10 +125,11 @@ public class Main {
 
       File file2_path = new File(
         "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
-      );
+      ); */
+
       /**NOTE - C complier function Below.
        */
-      /* long average_time_file1 = 0;
+      /*  long average_time_file1 = 0;
       long average_time_file2 = 0;
       boolean compilation_success = true;
       for (int i = 0; i < execution_average_constant; i++) {
@@ -186,6 +169,12 @@ public class Main {
        * Fingerprint Comparison Algorithm
        * Operand Comparison
        */
+      Compare_ExecSpeedOf_Cprog_output_only(
+        file1_name,
+        file1_path,
+        file2_name,
+        file2_path
+      );
       String s1 = string_from_file(file1);
       String s2 = string_from_file(file2);
       token_edit_distance_algorithm(s1, s2);
@@ -284,6 +273,8 @@ public class Main {
     HashMap<String, Integer> map1,
     HashMap<String, Integer> map2
   ) {
+    int common_tokens = 0;
+    int no_of_tokens = 0;
     // !! Checking set comprison for subsets
     System.out.println(
       "_______________________________________________FINGERPRINT COMPARISON ALGORITHM OUTPUT _______________________________________________"
@@ -365,6 +356,44 @@ public class Main {
     return Local_operator_HashMap;
   }
 
+  public static void Compare_ExecSpeedOf_Cprog_output_only(
+    String filename1,
+    File directory_path1,
+    String filename2,
+    File directory_path2
+  ) throws InterruptedException {
+    long average_time_file1 = 0;
+    long average_time_file2 = 0;
+    boolean compilation_success = true;
+    for (int i = 0; i < execution_average_constant; i++) {
+      average_time_file1 += ExecSpeedOf_Cprog(filename1, directory_path1);
+      average_time_file2 += ExecSpeedOf_Cprog(filename2, directory_path2);
+      if (average_time_file1 == -1 || average_time_file2 == -1) {
+        compilation_success = false;
+        System.out.println(
+          "One of the files has compile time error to proceed for execution speed comparison.\n"
+        );
+        break;
+      }
+    }
+    if (compilation_success) {
+      average_time_file1 = average_time_file1 / execution_average_constant;
+      average_time_file2 = average_time_file2 / execution_average_constant;
+      System.out.println(
+        "Average Execution speed of file 1 in milli seconds " +
+        average_time_file1
+      );
+      System.out.println(
+        "Average Execution speed of file 2 in milli seconds " +
+        average_time_file2
+      );
+      System.out.println(
+        "Difference between execution speeds is " +
+        Math.abs(average_time_file2 - average_time_file1)
+      );
+    }
+  }
+
   // !! __________________________________________________________________________
   // !!______________________ Process for compilation Function ________________________
   // !! ___________________________________________________________________________
@@ -428,6 +457,8 @@ public class Main {
     HashMap<Character, Integer> map1,
     HashMap<Character, Integer> map2
   ) {
+    int operand_file1 = 0;
+    int operand_file2 = 0;
     System.out.println(
       "_______________________________________________OPERAND COMPARISON ALGORITHM OUTPUT _______________________________________________"
     );
