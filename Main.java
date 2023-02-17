@@ -7,8 +7,11 @@
 import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+// import java.util.Set;
 import java.util.StringTokenizer;
+import org.apache.commons.text.similarity.*;
 
 public class Main {
 
@@ -52,6 +55,66 @@ public class Main {
    */
   public static HashMap<Character, Integer> operatorHashMap1 = new HashMap<>();
   public static HashMap<Character, Integer> operatorHashMap2 = new HashMap<>();
+
+  // !! ______________________________________________________________________________________________
+  public static void RandomWalkAlgorithm(String s1, String s2) {
+    System.out.println(
+      "_______________________________________________Random Walk Algorithm OUTPUT _______________________________________________"
+    );
+    // Define set of possible all_substrings
+    Set<String> all_substrings = new HashSet<>();
+    for (int i = 0; i < s1.length(); i++) {
+      for (int j = i + 1; j <= Math.min(i + 3, s1.length()); j++) {
+        all_substrings.add(s1.substring(i, j));
+      }
+    }
+    for (int i = 0; i < s2.length(); i++) {
+      for (int j = i + 1; j <= Math.min(i + 3, s2.length()); j++) {
+        all_substrings.add(s2.substring(i, j));
+      }
+    }
+    // Represent all_substrings as vectors
+
+    Map<String, Integer> substringIndex = new HashMap<>();
+    int index = 0;
+    for (String substring : all_substrings) {
+      substringIndex.put(substring, index++);
+    }
+    int total_substring = all_substrings.size();
+    Map<CharSequence, Integer>[] vectors = new Map[2];
+    for (int i = 0; i < 2; i++) {
+      Map<CharSequence, Integer> vector = new HashMap<>();
+      for (int j = 0; j < total_substring; j++) {
+        vector.put((CharSequence) substringIndex.keySet().toArray()[j], 0);
+      }
+      vectors[i] = vector;
+    }
+    for (int i = 0; i < s1.length(); i++) {
+      for (int j = i + 1; j <= Math.min(i + 3, s1.length()); j++) {
+        String substring = s1.substring(i, j);
+        if (substringIndex.containsKey(substring)) {
+          vectors[0].put(substring, vectors[0].get(substring) + 1);
+        }
+      }
+    }
+    for (int i = 0; i < s2.length(); i++) {
+      for (int j = i + 1; j <= Math.min(i + 3, s2.length()); j++) {
+        String substring = s2.substring(i, j);
+        if (substringIndex.containsKey(substring)) {
+          vectors[1].put(substring, vectors[1].get(substring) + 1);
+        }
+      }
+    }
+
+    // Compute similarity using cosine similarity
+    CosineSimilarity cosineSimilarity = new CosineSimilarity();
+    // converting similarity to percentage by multiply to 100
+    double similarity =
+      (cosineSimilarity.cosineSimilarity(vectors[0], vectors[1])) * 100;
+    System.out.println(
+      "RandomWalkAlgorithm Similarity between files is :" + similarity + "%"
+    );
+  }
 
   // !!_______________________________________________________________________________________________
   public static int token_edit_distance_algorithm(String s1, String s2) {
@@ -164,19 +227,25 @@ public class Main {
       Stringtokenizer object to token the string words with param delimeters
       */
 
-      /*ANCHOR - Structural Apporach for detecting Plagrism
-       * Token Edit distance Algorithm
-       * Fingerprint Comparison Algorithm
-       * Operand Comparison
-       */
       Compare_ExecSpeedOf_Cprog_output_only(
         file1_name,
         file1_path,
         file2_name,
         file2_path
       );
+      /*ANCHOR - Structural Approaches for detecting Plagrism
+       * Token Edit distance Algorithm
+       * Fingerprint Comparison Algorithm
+       * Operand Comparison
+       */
+      /*ANCHOR - Structural Approaches for detecting Plagrism
+       * Token Edit distance Algorithm
+       * Fingerprint Comparison Algorithm
+       * Operand Comparison
+       */
       String s1 = string_from_file(file1);
       String s2 = string_from_file(file2);
+      RandomWalkAlgorithm(s1, s2);
       token_edit_distance_algorithm(s1, s2);
       fingerprintHashMap1 = Create_token(file1);
       fingerprintHashMap2 = Create_token(file2);
@@ -362,6 +431,9 @@ public class Main {
     String filename2,
     File directory_path2
   ) throws InterruptedException {
+    System.out.println(
+      "_______________________________________________Compare_ExecSpeedOf_Cprog_output_only _______________________________________________"
+    );
     long average_time_file1 = 0;
     long average_time_file2 = 0;
     boolean compilation_success = true;
