@@ -1,5 +1,9 @@
 {
     "files.associations": {
         "stdio.h": "c"
-    }
+    },
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\akshr\\Downloads\\commons-text-1.10.0-bin\\commons-text-1.10.0\\commons-text-1.10.0.jar"
+    ]
 }

@@ -9,45 +9,32 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-// import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.text.similarity.*;
 
 public class Main {
 
-  // static final int REGEX_TOKEN_SIZE = 5; //this token size is needed for regex token comparison and cant be changes
   static final int execution_average_constant = 1; // constant to use for 10 times of iteration for average execution speed of single file
   static final int percentage_above_isPlagried = 50;
 
   static final String file1_name = "Temp.c";
   static final File file1 = new File(
-    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\" +
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A and B\\JAVA\\SCPD\\" +
     file1_name
   ); //   creating file for the first file we need to create signature.
-  static final File file1_path = new File(
-    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
+  static final File file1_path_for_complier = new File(
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A and B\\JAVA\\SCPD"
   ); //   creating file for the first file we need to create signature.
 
   static final String file2_name = "Temp2.c";
   static final File file2 = new File(
-    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\" +
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A and B\\JAVA\\SCPD\\" +
     file2_name
   ); //   creating file for the Second file we need to create signature.
 
-  static final File file2_path = new File(
-    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
+  static final File file2_path_for_complier = new File(
+    "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A and B\\JAVA\\SCPD"
   );
-
-  // public static int common_tokens = 0;
-  // public static int no_of_tokens = 0; // Declaring this variable bcoz two maps could have different no of tokens so we need to choose a highest no of tokens to match and give percentage
-
-  // public static int operand_file1 = 0;
-  // public static int operand_file2 = 0;
-  /*!Fingerprint Hashmaps
-   * Here two hashmaps are created to store the unique token extracted from files
-   */
-  public static HashMap<String, Integer> fingerprintHashMap1 = new HashMap<>();
-  public static HashMap<String, Integer> fingerprintHashMap2 = new HashMap<>();
 
   /*!Operator Hashmaps
    * Here two hashmaps are created to store the extracted operands from each files
@@ -56,11 +43,90 @@ public class Main {
   public static HashMap<Character, Integer> operatorHashMap1 = new HashMap<>();
   public static HashMap<Character, Integer> operatorHashMap2 = new HashMap<>();
 
-  // !! ______________________________________________________________________________________________
-  public static void RandomWalkAlgorithm(String s1, String s2) {
+  public static double findScore(double val1, double val2, double target) {
+    double diff1 = Math.abs(target - val1);
+    double diff2 = Math.abs(target - val2);
+    if (diff1 < diff2) {
+      return val1;
+    } else {
+      return val2;
+    }
+  }
+
+  // !!   *************************************************************************
+  // !! __________________________________ Main _____________________________________
+  // !!  **************************************************************************
+  public static void main(String args[]) {
     System.out.println(
-      "_______________________________________________Random Walk Algorithm OUTPUT _______________________________________________"
+      "\n________________________________________________________________________________________________________________________________"
     );
+    try {
+      /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
+      Stringtokenizer object to token the string words with param delimeters
+      */
+      String s1 = string_from_file(file1);
+      String s2 = string_from_file(file2);
+      /*  Compare_ExecSpeedOf_Cprog_output_only(
+        file1_name,
+        file1_path_for_complier,
+        file2_name,
+        file2_path_for_complier
+      );
+
+       */
+      /*ANCHOR - Semantic Approaches for detecting Plagrism
+       * Radom Walk Algorithm
+       *
+       *
+       */
+
+      double RandomWalkAlgorithm_score = RandomWalkAlgorithm(s1, s2);
+      double TokenEdit_score = token_edit_distance_algorithm(s1, s2);
+      /*ANCHOR - Structural Approaches for detecting Plagrism
+       * Token Edit distance Algorithm
+       * Fingerprint Comparison Algorithm
+       * Operand Comparison
+       */
+      double Fingerprint_score = fingerprint_comparison(
+        Create_token(file1),
+        Create_token(file2)
+      );
+      operand_comparison(
+        operator_extraction(file1),
+        operator_extraction(file2)
+      );
+
+      double Similarity = findScore(
+        RandomWalkAlgorithm_score,
+        Fingerprint_score,
+        TokenEdit_score
+      );
+      System.out.println(
+        "\n\nSource Code Plagarism Score for given files is : " + Similarity
+      );
+
+      System.out.println(
+        "\n\nRadom Walk Algorithm : " +
+        RandomWalkAlgorithm_score +
+        "\n\nToken Edit Distance Score : " +
+        TokenEdit_score +
+        "\n\nFingerprint Score : " +
+        Fingerprint_score
+      );
+    } catch (Exception e) {
+      System.out.println("Error in main : ");
+      e.printStackTrace();
+    }
+    System.out.println(
+      "\n________________________________________________________________________________________________________________________________"
+    );
+  }
+
+  // !! ______________________________________________________________________________________________
+  public static double RandomWalkAlgorithm(String s1, String s2) {
+    // System.out.println(
+    //   "_______________________________________________Random Walk Algorithm OUTPUT _______________________________________________"
+    // );
     // Define set of possible all_substrings
     Set<String> all_substrings = new HashSet<>();
     for (int i = 0; i < s1.length(); i++) {
@@ -111,16 +177,19 @@ public class Main {
     // converting similarity to percentage by multiply to 100
     double similarity =
       (cosineSimilarity.cosineSimilarity(vectors[0], vectors[1])) * 100;
-    System.out.println(
-      "RandomWalkAlgorithm Similarity between files is :" + similarity + "%"
-    );
+    // System.out.println(
+    //   "RandomWalkAlgorithm Similarity between files is :" + similarity + "%"
+    // );
+    return similarity;
   }
 
   // !!_______________________________________________________________________________________________
-  public static int token_edit_distance_algorithm(String s1, String s2) {
+  public static double token_edit_distance_algorithm(String s1, String s2) {
     String[] tokens1 = s1.split("\\s+");
     String[] tokens2 = s2.split("\\s+");
-
+    // System.out.println(
+    //   "_______________________________________________TOKEN EDIT DISTANCE ALGORITHM OUTPUT _______________________________________________"
+    // );
     // calculate the token edit distance
     int[][] dp = new int[tokens1.length + 1][tokens2.length + 1];
     for (int i = 0; i <= tokens1.length; i++) {
@@ -139,138 +208,17 @@ public class Main {
         }
       }
     }
-    System.out.println(
-      "_______________________________________________TOKEN EDIT DISTANCE ALGORITHM OUTPUT _______________________________________________"
-    );
+
     double common_tokens = dp[tokens1.length][tokens2.length];
     double total_tokens = tokens1.length + tokens2.length;
-    double percentage = 100 - ((common_tokens * 100) / total_tokens);
-    System.out.println(
-      "Similarity score using edit token algo : " + percentage
-    );
-    if (percentage == 0) {
-      System.out.println("The two strings are not similar.");
-    } else if (percentage >= percentage_above_isPlagried) {
-      System.out.println("The two strings are likely to be plagiarized.");
-    } else if (percentage == 100) {
-      System.out.println("The two strings are identical");
-    }
+    double similarity_score = 100 - ((common_tokens * 100) / total_tokens);
 
-    /* if (dp[tokens1.length][tokens2.length] == 0) {
-      System.out.println("The two strings are identical.");
-    } else if (dp[tokens1.length][tokens2.length] <= 3) {
-      System.out.println("The two strings are likely to be plagiarized.");
-    } else {
-      System.out.println("The two strings are not similar.");
-    } */
-    return dp[tokens1.length][tokens2.length];
+    return similarity_score;
   }
 
-  // !!   *************************************************************************
-  // !! __________________________________ Main _____________________________________
-  // !!  **************************************************************************
-  public static void main(String args[]) {
-    System.out.println(
-      "\n________________________________________________________________________________________________________________________________"
-    );
-    try {
-      // delcaring below as final so we cant edit them throgh out code
-      /*   File file1 = new File(
-        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp.c"
-      ); //   creating file for the first file we need to create signature.
-      File file1_path = new File(
-        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
-      ); //   creating file for the first file we need to create signature.
-
-      File file2 = new File(
-        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD\\Temp2.c"
-      ); //   creating file for the Second file we need to create signature.
-
-      File file2_path = new File(
-        "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A\\JAVA\\SCPD"
-      ); */
-
-      /**NOTE - C complier function Below.
-       */
-      /*  long average_time_file1 = 0;
-      long average_time_file2 = 0;
-      boolean compilation_success = true;
-      for (int i = 0; i < execution_average_constant; i++) {
-        average_time_file1 += ExecSpeedOf_Cprog("Temp.c", file1_path);
-        average_time_file2 += ExecSpeedOf_Cprog("Temp2.c", file2_path);
-        if (average_time_file1 == -1 || average_time_file2 == -1) {
-          compilation_success = false;
-          System.out.println(
-            "One of the files has compile time error to proceed for execution speed comparison.\n"
-          );
-          break;
-        }
-      }
-      if (compilation_success) {
-        average_time_file1 = average_time_file1 / execution_average_constant;
-        average_time_file2 = average_time_file2 / execution_average_constant;
-        System.out.println(
-          "Average Execution speed of file 1 in milli seconds " +
-          average_time_file1
-        );
-        System.out.println(
-          "Average Execution speed of file 2 in milli seconds " +
-          average_time_file2
-        );
-        System.out.println(
-          "Difference between execution speeds is " +
-          Math.abs(average_time_file2 - average_time_file1)
-        );
-      } */
-
-      /* Note: Here we are adding white space character for token as we dont want to have our token with space after it
-      Stringtokenizer object to token the string words with param delimeters
-      */
-
-      Compare_ExecSpeedOf_Cprog_output_only(
-        file1_name,
-        file1_path,
-        file2_name,
-        file2_path
-      );
-      /*ANCHOR - Structural Approaches for detecting Plagrism
-       * Token Edit distance Algorithm
-       * Fingerprint Comparison Algorithm
-       * Operand Comparison
-       */
-      /*ANCHOR - Structural Approaches for detecting Plagrism
-       * Token Edit distance Algorithm
-       * Fingerprint Comparison Algorithm
-       * Operand Comparison
-       */
-      String s1 = string_from_file(file1);
-      String s2 = string_from_file(file2);
-      RandomWalkAlgorithm(s1, s2);
-      token_edit_distance_algorithm(s1, s2);
-      fingerprintHashMap1 = Create_token(file1);
-      fingerprintHashMap2 = Create_token(file2);
-      fingerprint_comparison(fingerprintHashMap1, fingerprintHashMap2);
-      operatorHashMap1 = operator_extraction(file1);
-      operatorHashMap2 = operator_extraction(file2);
-      operand_comparison(operatorHashMap1, operatorHashMap2);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    System.out.println(
-      "\n________________________________________________________________________________________________________________________________"
-    );
-  }
-
-  // !!  **************************************************************************
-  // !!  **************************************************************************
-
-  // !! ____________________________________________________________________________________________________________________________________________________
-  // !!_______________________________ Operator occurence ______________________________
-  // !! ___________________________________________________________________________
-
-  // !! ____________________________________________________________________________________________________________________________________________________
+  // !! ________________________________________________________________________________________
   // !!_______________________________ Remove comments from files ______________________________
-  // !! ___________________________________________________________________________
+  // !! ________________________________________________________________________________________
   /*!SECTION
    * Removing both types of comments from the files before tokening
    */
@@ -294,7 +242,7 @@ public class Main {
 
   // !! __________________________________________________________________________
   // !!_______________________________ Create Token ______________________________
-  // !! ___________________________________________________________________________
+  // !! __________________________________________________________________________
 
   /*
    * Method Create Token takes in a file and creteas a token
@@ -336,57 +284,35 @@ public class Main {
   }
 
   // !! __________________________________________________________________________
-  // !!___________________FingerPrint Comparison_________________________________
-  // !! ___________________________________________________________________________
-  public static void fingerprint_comparison(
+  // !!___________________FingerPrint Comparison__________________________________
+  // !! __________________________________________________________________________
+  public static double fingerprint_comparison(
     HashMap<String, Integer> map1,
     HashMap<String, Integer> map2
   ) {
+    double similarity_score = 0;
     int common_tokens = 0;
     int no_of_tokens = 0;
     // !! Checking set comprison for subsets
-    System.out.println(
-      "_______________________________________________FINGERPRINT COMPARISON ALGORITHM OUTPUT _______________________________________________"
-    );
+    // System.out.println(
+    //   "_______________________________________________FINGERPRINT COMPARISON ALGORITHM OUTPUT _______________________________________________"
+    // );
     Set<String> Keyset1 = new HashSet<String>();
     Set<String> Keyset2 = new HashSet<String>();
 
     Keyset1.addAll(map1.keySet());
     Keyset2.addAll(map2.keySet());
+    no_of_tokens = Math.max(map1.keySet().size(), map2.keySet().size());
 
-    if (map1.equals(map2)) {
-      System.out.println("Files are 100% identical by Text");
-      return;
-    } else if (Keyset1.containsAll(Keyset2)) {
-      System.out.println("\n\nFile 2 is a subset of File 1");
-      return;
-    } else if (Keyset2.containsAll(Keyset1)) {
-      System.out.println("\n\nFile 1 is a subset of File 2");
-      return;
-    } else {
-      /**Taking maximum no of tokens from
-       * both maps for percentage
-       *
-       */
-      no_of_tokens = Math.max(map1.keySet().size(), map2.keySet().size());
-
-      for (String iterable_element : map1.keySet()) {
-        if (map2.keySet().contains(iterable_element)) {
-          common_tokens++;
-        }
+    for (String iterable_element : map1.keySet()) {
+      if (map2.keySet().contains(iterable_element)) {
+        common_tokens++;
       }
     }
-
-    System.out.println(
-      "Files are " +
-      (float) (common_tokens * 100 / no_of_tokens) +
-      " % identical to each other\n\nNumber of common tokens among files are " +
-      common_tokens +
-      "/" +
-      no_of_tokens
-    );
-
-    return;
+   
+    similarity_score = (double) (common_tokens * 100 / no_of_tokens);
+   
+    return similarity_score;
   }
 
   // !! __________________________________________________________________________
@@ -431,9 +357,9 @@ public class Main {
     String filename2,
     File directory_path2
   ) throws InterruptedException {
-    System.out.println(
-      "_______________________________________________Compare_ExecSpeedOf_Cprog_output_only _______________________________________________"
-    );
+    // System.out.println(
+    //   "_______________________________________________Compare_ExecSpeedOf_Cprog_output_only _______________________________________________"
+    // );
     long average_time_file1 = 0;
     long average_time_file2 = 0;
     boolean compilation_success = true;
@@ -466,30 +392,40 @@ public class Main {
     }
   }
 
-  // !! __________________________________________________________________________
-  // !!______________________ Process for compilation Function ________________________
-  // !! ___________________________________________________________________________
+  // ?? __________________________________________________________________________
+  // ??______________________ Process for compilation Function ________________________
+  // ?? ___________________________________________________________________________
 
   public static long ExecSpeedOf_Cprog(String filename, File directory_path)
     throws InterruptedException {
     long startTime;
     long elapsedTime;
     try {
-      startTime = System.nanoTime();
-      Process p = Runtime
-        .getRuntime()
-        .exec("cmd /C gcc -Wall " + filename, null, directory_path);
-      int exit_code = p.waitFor();
+      StringBuilder cmd = new StringBuilder("gcc -Wall ");
+      cmd.append(filename);
 
-      if (exit_code == 0) {
-        elapsedTime = System.nanoTime() - startTime;
-        System.out.println("Compiling " + filename + " was a success ^_^");
-        return (elapsedTime / 1000000);
-      } else {
-        System.out.println("Error Compiling " + filename + " file .....");
-        return -1;
+      startTime = System.nanoTime();
+      ProcessBuilder builder = new ProcessBuilder();
+      builder.command("cmd", "/C", cmd.toString());
+      builder.directory(directory_path);
+      Process p = builder.start();
+
+      try (
+        InputStream in = p.getInputStream();
+        OutputStream out = p.getOutputStream()
+      ) {
+        int exit_code = p.waitFor();
+        if (exit_code == 0) {
+          elapsedTime = System.nanoTime() - startTime;
+          System.out.println("Compiling " + filename + " was a success ^_^");
+          return elapsedTime / 1000000;
+        } else {
+          System.out.println("Error Compiling " + filename + " file .....");
+          return -1;
+        }
       }
     } catch (IOException e) {
+      System.out.println("Error in ExecSpeedOf_Cprog :");
       e.printStackTrace();
       return -1;
     }
@@ -510,12 +446,10 @@ public class Main {
       Local_file.read(bytearray);
       file_words = new String(bytearray); //  get the string value from byte []
       file_words = comment_removal_from_c_file_string(file_words);
-      //how to compare file_words to another string inorder to compare for plagarism ?  !SECTION
-
-      //Source: https://stackoverflow.com/questions/43092414
-
+   
       file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
     } catch (Exception e) {
+      System.out.println("Error in string_from_file : ");
       System.err.println(e);
     }
     return file_words;
@@ -531,18 +465,15 @@ public class Main {
   ) {
     int operand_file1 = 0;
     int operand_file2 = 0;
-    System.out.println(
-      "_______________________________________________OPERAND COMPARISON ALGORITHM OUTPUT _______________________________________________"
-    );
+    // System.out.println(
+    //   "_______________________________________________OPERAND COMPARISON ALGORITHM OUTPUT _______________________________________________"
+    // );
     for (Integer iterable_element : map1.values()) {
       operand_file1 += iterable_element;
     }
     for (Integer iterable_element : map2.values()) {
       operand_file2 += iterable_element;
     }
-
-    System.out.println(" Total Operands in File 1 -> " + operand_file1);
-    System.out.println(" Total Operands in File 2 -> " + operand_file2);
 
     if (operand_file1 < operand_file2) {
       System.out.println(
