@@ -53,6 +53,28 @@ public class Main {
     }
   }
 
+  public static double getGraphSimilarity(String str1, String str2) {
+    // Create sets of characters in both strings
+    Set<Character> set1 = new HashSet<>();
+    Set<Character> set2 = new HashSet<>();
+    for (char c : str1.toCharArray()) {
+      set1.add(c);
+    }
+    for (char c : str2.toCharArray()) {
+      set2.add(c);
+    }
+
+    // Calculate Jaccard similarity coefficient
+    Set<Character> intersection = new HashSet<>(set1);
+    intersection.retainAll(set2);
+    Set<Character> union = new HashSet<>(set1);
+    union.addAll(set2);
+    double jaccard = (double) intersection.size() * 100 / union.size();
+
+    // Return similarity score
+    return jaccard;
+  }
+
   // !!   *************************************************************************
   // !! __________________________________ Main _____________________________________
   // !!  **************************************************************************
@@ -76,8 +98,6 @@ public class Main {
        */
       /*ANCHOR - Semantic Approaches for detecting Plagrism
        * Radom Walk Algorithm
-       *
-       *
        */
 
       double RandomWalkAlgorithm_score = RandomWalkAlgorithm(s1, s2);
@@ -95,14 +115,12 @@ public class Main {
         operator_extraction(file1),
         operator_extraction(file2)
       );
-
+      double new_score = getGraphSimilarity(s1, s2);
+      System.out.println("New score : " + new_score);
       double Similarity = findScore(
         RandomWalkAlgorithm_score,
         Fingerprint_score,
         TokenEdit_score
-      );
-      System.out.println(
-        "\n\nSource Code Plagarism Score for given files is : " + Similarity
       );
 
       System.out.println(
@@ -112,6 +130,10 @@ public class Main {
         TokenEdit_score +
         "\n\nFingerprint Score : " +
         Fingerprint_score
+      );
+
+      System.out.println(
+        "\n\nSource Code Plagarism Score for given files is : " + Similarity
       );
     } catch (Exception e) {
       System.out.println("Error in main : ");
@@ -187,10 +209,6 @@ public class Main {
   public static double token_edit_distance_algorithm(String s1, String s2) {
     String[] tokens1 = s1.split("\\s+");
     String[] tokens2 = s2.split("\\s+");
-    // System.out.println(
-    //   "_______________________________________________TOKEN EDIT DISTANCE ALGORITHM OUTPUT _______________________________________________"
-    // );
-    // calculate the token edit distance
     int[][] dp = new int[tokens1.length + 1][tokens2.length + 1];
     for (int i = 0; i <= tokens1.length; i++) {
       for (int j = 0; j <= tokens2.length; j++) {
@@ -266,10 +284,6 @@ public class Main {
       syntax_for_c_language
     );
 
-    // System.out.println(
-    //   "No of tokens in the file -> " + tokenizer.countTokens()
-    // );
-
     while (tokenizer.hasMoreTokens()) {
       String nextTokString = tokenizer.nextToken(); // taking next token
       if (Local_Hash_map.containsKey(nextTokString)) {
@@ -278,7 +292,6 @@ public class Main {
         Local_Hash_map.put(nextTokString, 1); // populating hashmap with keys set to 1 default      }
       }
     }
-    // System.out.println("\n" + Local_Hash_map);
 
     return Local_Hash_map;
   }
@@ -294,9 +307,7 @@ public class Main {
     int common_tokens = 0;
     int no_of_tokens = 0;
     // !! Checking set comprison for subsets
-    // System.out.println(
-    //   "_______________________________________________FINGERPRINT COMPARISON ALGORITHM OUTPUT _______________________________________________"
-    // );
+
     Set<String> Keyset1 = new HashSet<String>();
     Set<String> Keyset2 = new HashSet<String>();
 
@@ -309,9 +320,9 @@ public class Main {
         common_tokens++;
       }
     }
-   
+
     similarity_score = (double) (common_tokens * 100 / no_of_tokens);
-   
+
     return similarity_score;
   }
 
@@ -392,45 +403,6 @@ public class Main {
     }
   }
 
-  // ?? __________________________________________________________________________
-  // ??______________________ Process for compilation Function ________________________
-  // ?? ___________________________________________________________________________
-
-  public static long ExecSpeedOf_Cprog(String filename, File directory_path)
-    throws InterruptedException {
-    long startTime;
-    long elapsedTime;
-    try {
-      StringBuilder cmd = new StringBuilder("gcc -Wall ");
-      cmd.append(filename);
-
-      startTime = System.nanoTime();
-      ProcessBuilder builder = new ProcessBuilder();
-      builder.command("cmd", "/C", cmd.toString());
-      builder.directory(directory_path);
-      Process p = builder.start();
-
-      try (
-        InputStream in = p.getInputStream();
-        OutputStream out = p.getOutputStream()
-      ) {
-        int exit_code = p.waitFor();
-        if (exit_code == 0) {
-          elapsedTime = System.nanoTime() - startTime;
-          System.out.println("Compiling " + filename + " was a success ^_^");
-          return elapsedTime / 1000000;
-        } else {
-          System.out.println("Error Compiling " + filename + " file .....");
-          return -1;
-        }
-      }
-    } catch (IOException e) {
-      System.out.println("Error in ExecSpeedOf_Cprog :");
-      e.printStackTrace();
-      return -1;
-    }
-  }
-
   // !! __________________________________________________________________________
   // !!______________________ string_from_file Function ________________________
   // !! ___________________________________________________________________________
@@ -446,7 +418,7 @@ public class Main {
       Local_file.read(bytearray);
       file_words = new String(bytearray); //  get the string value from byte []
       file_words = comment_removal_from_c_file_string(file_words);
-   
+
       file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
     } catch (Exception e) {
       System.out.println("Error in string_from_file : ");
@@ -491,6 +463,45 @@ public class Main {
         operand_file1 +
         '%'
       );
+    }
+  }
+
+  // ?? __________________________________________________________________________
+  // ??______________________ Process for compilation Function ________________________
+  // ?? ___________________________________________________________________________
+
+  public static long ExecSpeedOf_Cprog(String filename, File directory_path)
+    throws InterruptedException {
+    long startTime;
+    long elapsedTime;
+    try {
+      StringBuilder cmd = new StringBuilder("gcc -Wall ");
+      cmd.append(filename);
+
+      startTime = System.nanoTime();
+      ProcessBuilder builder = new ProcessBuilder();
+      builder.command("cmd", "/C", cmd.toString());
+      builder.directory(directory_path);
+      Process p = builder.start();
+
+      try (
+        InputStream in = p.getInputStream();
+        OutputStream out = p.getOutputStream()
+      ) {
+        int exit_code = p.waitFor();
+        if (exit_code == 0) {
+          elapsedTime = System.nanoTime() - startTime;
+          System.out.println("Compiling " + filename + " was a success ^_^");
+          return elapsedTime / 1000000;
+        } else {
+          System.out.println("Error Compiling " + filename + " file .....");
+          return -1;
+        }
+      }
+    } catch (IOException e) {
+      System.out.println("Error in ExecSpeedOf_Cprog :");
+      e.printStackTrace();
+      return -1;
     }
   }
 }
