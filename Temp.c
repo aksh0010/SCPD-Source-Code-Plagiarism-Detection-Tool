@@ -9,5 +9,15 @@ int main()
     f = f * c;
   printf("Factorial of %d = %d\n", n, f);
 
+  switch (f)
+  {
+  case 10:
+    printf("Hello boy\n");
+    break;
+
+  default:
+    printf("Hello girl\n");
+    break;
+  }
   return 0;
 }
