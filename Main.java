@@ -5,6 +5,7 @@
  */
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,45 +37,6 @@ public class Main {
     "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A and B\\JAVA\\SCPD"
   );
 
-  /*!Operator Hashmaps
-   * Here two hashmaps are created to store the extracted operands from each files
-   * Note: It is defined which operatands to extract in operator_extraction function
-   */
-  public static HashMap<Character, Integer> operatorHashMap1 = new HashMap<>();
-  public static HashMap<Character, Integer> operatorHashMap2 = new HashMap<>();
-
-  public static double findScore(double val1, double val2, double target) {
-    double diff1 = Math.abs(target - val1);
-    double diff2 = Math.abs(target - val2);
-    if (diff1 < diff2) {
-      return val1;
-    } else {
-      return val2;
-    }
-  }
-
-  public static double getGraphSimilarity(String str1, String str2) {
-    // Create sets of characters in both strings
-    Set<Character> set1 = new HashSet<>();
-    Set<Character> set2 = new HashSet<>();
-    for (char c : str1.toCharArray()) {
-      set1.add(c);
-    }
-    for (char c : str2.toCharArray()) {
-      set2.add(c);
-    }
-
-    // Calculate Jaccard similarity coefficient
-    Set<Character> intersection = new HashSet<>(set1);
-    intersection.retainAll(set2);
-    Set<Character> union = new HashSet<>(set1);
-    union.addAll(set2);
-    double jaccard = (double) intersection.size() * 100 / union.size();
-
-    // Return similarity score
-    return jaccard;
-  }
-
   // !!   *************************************************************************
   // !! __________________________________ Main _____________________________________
   // !!  **************************************************************************
@@ -102,6 +64,7 @@ public class Main {
 
       double RandomWalkAlgorithm_score = RandomWalkAlgorithm(s1, s2);
       double TokenEdit_score = token_edit_distance_algorithm(s1, s2);
+      double jaccard_score = jaccard_algorithm(s1, s2);
       /*ANCHOR - Structural Approaches for detecting Plagrism
        * Token Edit distance Algorithm
        * Fingerprint Comparison Algorithm
@@ -111,27 +74,28 @@ public class Main {
         Create_token(file1),
         Create_token(file2)
       );
-      operand_comparison(
-        operator_extraction(file1),
-        operator_extraction(file2)
-      );
-      double new_score = getGraphSimilarity(s1, s2);
-      System.out.println("New score : " + new_score);
-      double Similarity = findScore(
-        RandomWalkAlgorithm_score,
-        Fingerprint_score,
-        TokenEdit_score
-      );
+      // operand_comparison(
+      //   operator_extraction(file1),
+      //   operator_extraction(file2)
+      // );
+
+      System.out.println("Jaccard score : " + jaccard_score);
 
       System.out.println(
-        "\n\nRadom Walk Algorithm : " +
+        "Radom Walk Algorithm : " +
         RandomWalkAlgorithm_score +
-        "\n\nToken Edit Distance Score : " +
+        "\nToken Edit Distance Score : " +
         TokenEdit_score +
-        "\n\nFingerprint Score : " +
+        "\nFingerprint Score : " +
         Fingerprint_score
       );
-
+      double[] arr = {
+        RandomWalkAlgorithm_score,
+        TokenEdit_score,
+        Fingerprint_score,
+        jaccard_score,
+      };
+      double Similarity = findScore(arr);
       System.out.println(
         "\n\nSource Code Plagarism Score for given files is : " + Similarity
       );
@@ -142,6 +106,50 @@ public class Main {
     System.out.println(
       "\n________________________________________________________________________________________________________________________________"
     );
+  }
+
+  public static double findScore(double arr[]) {
+    Arrays.sort(arr);
+    int middleValues_index = arr.length / 2;
+    double middleValues;
+
+    if (middleValues_index % 2 == 0) {
+      middleValues =
+        (arr[middleValues_index - 1] + arr[middleValues_index]) / 2.0;
+    } else {
+      middleValues = arr[middleValues_index - 1];
+    }
+
+    double diff_max_value = arr[arr.length - 1] - middleValues;
+    double diff_min_value = arr[0] - middleValues;
+
+    if (diff_max_value < diff_min_value) {
+      return arr[arr.length - 1]; // returning the highest score as it is closest to mean
+    } else {
+      return arr[0]; // returning the lowest score as it is closest to mean
+    }
+  }
+
+  public static double jaccard_algorithm(String str1, String str2) {
+    // Create sets of characters in both strings
+    Set<Character> set1 = new HashSet<>();
+    Set<Character> set2 = new HashSet<>();
+    for (char c : str1.toCharArray()) {
+      set1.add(c);
+    }
+    for (char c : str2.toCharArray()) {
+      set2.add(c);
+    }
+
+    // Calculate Jaccard similarity coefficient
+    Set<Character> intersection = new HashSet<>(set1);
+    intersection.retainAll(set2);
+    Set<Character> union = new HashSet<>(set1);
+    union.addAll(set2);
+    double jaccard = (double) intersection.size() * 100 / union.size();
+
+    // Return similarity score
+    return jaccard;
   }
 
   // !! ______________________________________________________________________________________________
