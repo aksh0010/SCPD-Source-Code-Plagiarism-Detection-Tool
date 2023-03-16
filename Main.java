@@ -40,6 +40,7 @@ public class Main {
   // !!   *************************************************************************
   // !! __________________________________ Main _____________________________________
   // !!  **************************************************************************
+
   public static void main(String args[]) {
     System.out.println(
       "\n________________________________________________________________________________________________________________________________"
@@ -108,6 +109,15 @@ public class Main {
     );
   }
 
+  /**
+   * This method is created to find the best possible score.
+   * Each algorithm works differently when input strings are different and thus
+   * this method finds the average of the scores and then find the distance between the min and max value
+   * from the array. The closest value to mean is returned.
+   * @param arr array of scores from different algorithm
+   * @return returns most accurate score from the array.
+   */
+
   public static double findScore(double arr[]) {
     Arrays.sort(arr);
     int middleValues_index = arr.length / 2;
@@ -130,6 +140,14 @@ public class Main {
     }
   }
 
+  /**
+   * This function takes in two strings and creates a sets of each unique char from strings
+   * Function uses union method for total size of all unique chars from both sets
+   * also uses retainall method to get common chars
+   * @param str1 String input1
+   * @param str2 String input2
+   * @return double score from this algorithm
+   */
   public static double jaccard_algorithm(String str1, String str2) {
     // Create sets of characters in both strings
     Set<Character> set1 = new HashSet<>();
@@ -140,23 +158,25 @@ public class Main {
     for (char c : str2.toCharArray()) {
       set2.add(c);
     }
-
-    // Calculate Jaccard similarity coefficient
     Set<Character> intersection = new HashSet<>(set1);
     intersection.retainAll(set2);
     Set<Character> union = new HashSet<>(set1);
     union.addAll(set2);
     double jaccard = (double) intersection.size() * 100 / union.size();
 
-    // Return similarity score
     return jaccard;
   }
 
-  // !! ______________________________________________________________________________________________
+  /**
+   * This Function takes in two input string and creates a single set of substrings of a fixed length
+   * Then it represents the set as the Map of 2 vector using Map as key,value(CharSequence, int)
+   * NOTE: CharSequence is used with fixed length and thus it could effect the results
+   * After creating Vectors, It uses cosin similarity approach by calculating DOT product of the vectors.
+   * @param s1 String input1
+   * @param s2 String input1
+   * @return return the score in double
+   */
   public static double RandomWalkAlgorithm(String s1, String s2) {
-    // System.out.println(
-    //   "_______________________________________________Random Walk Algorithm OUTPUT _______________________________________________"
-    // );
     // Define set of possible all_substrings
     Set<String> all_substrings = new HashSet<>();
     for (int i = 0; i < s1.length(); i++) {
@@ -201,19 +221,22 @@ public class Main {
         }
       }
     }
-
     // Compute similarity using cosine similarity
     CosineSimilarity cosineSimilarity = new CosineSimilarity();
-    // converting similarity to percentage by multiply to 100
     double similarity =
       (cosineSimilarity.cosineSimilarity(vectors[0], vectors[1])) * 100;
-    // System.out.println(
-    //   "RandomWalkAlgorithm Similarity between files is :" + similarity + "%"
-    // );
     return similarity;
   }
 
-  // !!_______________________________________________________________________________________________
+  /**
+   * Token Edit Distance is an algorithm which works by populating matirx of length m cross n with S1 on first row while S2 on first col
+   * Rest of the row and cols are filled by measuring the distance it has to travel in order to convert from one token to other
+   * The bottom right corner cell in the created matrix is the total work needed to modify one string to other.
+   * and as the bottom right cell is work needed, we subtract it on scale of 100 to get how much work is similar as we dont have to modify it
+   * @param s1 String input1
+   * @param s2 String input2
+   * @return Returns the score
+   */
   public static double token_edit_distance_algorithm(String s1, String s2) {
     String[] tokens1 = s1.split("\\s+");
     String[] tokens2 = s2.split("\\s+");
@@ -242,11 +265,12 @@ public class Main {
     return similarity_score;
   }
 
-  // !! ________________________________________________________________________________________
-  // !!_______________________________ Remove comments from files ______________________________
-  // !! ________________________________________________________________________________________
-  /*!SECTION
-   * Removing both types of comments from the files before tokening
+  /**
+   * This function is required to remove the comments from the text as in C files, users could change the comments without changing the code
+   * which could lead to low score. Thus this function removes both kinds of comments.
+   * NOTE: we cannot use regex to split it as it could cut the \n chars as well
+   * @param input String to remove comments from
+   * @return returns the new string without comments
    */
   public static String comment_removal_from_c_file_string(String input) {
     for (int i = 0; i < input.length() - 2; i++) {
@@ -266,15 +290,13 @@ public class Main {
     return input;
   }
 
-  // !! __________________________________________________________________________
-  // !!_______________________________ Create Token ______________________________
-  // !! __________________________________________________________________________
-
-  /*
+  /**
    * Method Create Token takes in a file and creteas a token
-   * removing all whitespaces and stores them
+   * removing all whitespaces and following c cyntax and stores them
    * in hashmap and returns it
-   *
+   * @param file takes input file
+   * @return returns hashmap of uniques token and their freq.
+   * @throws IOException
    */
   public static HashMap<String, Integer> Create_token(File file)
     throws IOException {
@@ -304,9 +326,14 @@ public class Main {
     return Local_Hash_map;
   }
 
-  // !! __________________________________________________________________________
-  // !!___________________FingerPrint Comparison__________________________________
-  // !! __________________________________________________________________________
+  /**
+   * This function takes in 2 hashmap and evaluates the similiraity among them
+   * comparaing their values and return the score
+   * @param map1
+   * @param map2
+   * @return the score of plagarism
+   */
+
   public static double fingerprint_comparison(
     HashMap<String, Integer> map1,
     HashMap<String, Integer> map2
@@ -334,16 +361,15 @@ public class Main {
     return similarity_score;
   }
 
-  // !! __________________________________________________________________________
-  // !!_____________________ Operator Extraction _________________________________
-  // !! ___________________________________________________________________________
+  /**
+   * This function takes in File as param and returns Hashmap of unique operators and their frequency
+   * @param file
+   * @return Hashmap <Char,Int>
+   * @throws IOException
+   */
 
   public static HashMap<Character, Integer> operator_extraction(File file)
     throws IOException {
-    /*!SECTION
-     * Popuplating it with necessary operands and
-     * by default 0 as their occurence
-     */
     final HashMap<Character, Integer> Local_operator_HashMap = new HashMap<>();
 
     String words_file1 = string_from_file(file);
@@ -365,9 +391,116 @@ public class Main {
         }
       }
     }
-
-    // System.out.println("\n\n Operand Hashmap -> " + Local_operator_HashMap);
     return Local_operator_HashMap;
+  }
+
+  /**
+   * This function is simply extracting String From file function
+   * I noticed code was duplicated thorught out so decided to make a function
+   * for resuability
+   * @param file Takes in File from which we need to extract the String
+   * @return Final string after removing neccessary words an white space
+   * @throws IOException
+   */
+  public static String string_from_file(File file) throws IOException {
+    String file_words = "";
+    try (FileInputStream Local_file = new FileInputStream(file)) {
+      byte bytearray[] = new byte[Local_file.available()]; //  byte[] to read data file in to byte array
+      Local_file.read(bytearray);
+      file_words = new String(bytearray); //  get the string value from byte []
+      file_words = comment_removal_from_c_file_string(file_words);
+
+      file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
+    } catch (Exception e) {
+      System.out.println("Error in string_from_file : ");
+      System.err.println(e);
+    }
+    return file_words;
+  }
+
+  /**
+   * This function takes in two Hashmap of operator and compares then
+   * @param map1
+   * @param map2
+   */
+  public static void operand_comparison(
+    HashMap<Character, Integer> map1,
+    HashMap<Character, Integer> map2
+  ) {
+    int operand_file1 = 0;
+    int operand_file2 = 0;
+    // System.out.println(
+    //   "_______________________________________________OPERAND COMPARISON ALGORITHM OUTPUT _______________________________________________"
+    // );
+    for (Integer iterable_element : map1.values()) {
+      operand_file1 += iterable_element;
+    }
+    for (Integer iterable_element : map2.values()) {
+      operand_file2 += iterable_element;
+    }
+
+    if (operand_file1 < operand_file2) {
+      System.out.println(
+        "Operands used per file ratio for file1:file2 -> " +
+        operand_file1 *
+        100 /
+        operand_file2 +
+        '%'
+      );
+    } else {
+      System.out.println(
+        "Operands used per file ratio for file2:File1 -> " +
+        operand_file2 *
+        100 /
+        operand_file1 +
+        '%'
+      );
+    }
+  }
+
+  // ?? __________________________________________________________________________
+  // ??______________________ Process for compilation Function ________________________
+  // ?? ___________________________________________________________________________
+  /**
+   * @deprecated Not effecitive to use at the moment
+   * @param filename
+   * @param directory_path
+   * @return
+   * @throws InterruptedException
+   */
+  public static long ExecSpeedOf_Cprog(String filename, File directory_path)
+    throws InterruptedException {
+    long startTime;
+    long elapsedTime;
+    try {
+      StringBuilder cmd = new StringBuilder("gcc -Wall ");
+      cmd.append(filename);
+
+      startTime = System.nanoTime();
+      ProcessBuilder builder = new ProcessBuilder();
+      builder.command("cmd", "/C", cmd.toString());
+      builder.directory(directory_path);
+      Process p = builder.start();
+
+      try (
+        InputStream in = p.getInputStream();
+        OutputStream out = p.getOutputStream()
+      ) {
+        int exit_code = p.waitFor();
+        if (exit_code == 0) {
+          elapsedTime = System.nanoTime() - startTime;
+          System.out.println("Compiling " + filename + " was a success ^_^");
+          return elapsedTime / 1000000;
+        } else {
+          System.out.println("Error Compiling " + filename + " file .....");
+          return -1;
+        }
+      }
+    } catch (IOException e) {
+      System.out.println("Error in ExecSpeedOf_Cprog :");
+      e.printStackTrace();
+      return -1;
+    }
   }
 
   public static void Compare_ExecSpeedOf_Cprog_output_only(
@@ -408,108 +541,6 @@ public class Main {
         "Difference between execution speeds is " +
         Math.abs(average_time_file2 - average_time_file1)
       );
-    }
-  }
-
-  // !! __________________________________________________________________________
-  // !!______________________ string_from_file Function ________________________
-  // !! ___________________________________________________________________________
-
-  /*!String From file function
-   * I noticed code was multipled so decided to make a function
-   * to make it resuable
-   */
-  public static String string_from_file(File file) throws IOException {
-    String file_words = "";
-    try (FileInputStream Local_file = new FileInputStream(file)) {
-      byte bytearray[] = new byte[Local_file.available()]; //  byte[] to read data file in to byte array
-      Local_file.read(bytearray);
-      file_words = new String(bytearray); //  get the string value from byte []
-      file_words = comment_removal_from_c_file_string(file_words);
-
-      file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
-    } catch (Exception e) {
-      System.out.println("Error in string_from_file : ");
-      System.err.println(e);
-    }
-    return file_words;
-  }
-
-  // !! __________________________________________________________________________
-  // !!______________________ Operand Comparison Function ________________________
-  // !! ___________________________________________________________________________
-
-  public static void operand_comparison(
-    HashMap<Character, Integer> map1,
-    HashMap<Character, Integer> map2
-  ) {
-    int operand_file1 = 0;
-    int operand_file2 = 0;
-    // System.out.println(
-    //   "_______________________________________________OPERAND COMPARISON ALGORITHM OUTPUT _______________________________________________"
-    // );
-    for (Integer iterable_element : map1.values()) {
-      operand_file1 += iterable_element;
-    }
-    for (Integer iterable_element : map2.values()) {
-      operand_file2 += iterable_element;
-    }
-
-    if (operand_file1 < operand_file2) {
-      System.out.println(
-        "Operands used per file ratio for file1:file2 -> " +
-        operand_file1 *
-        100 /
-        operand_file2 +
-        '%'
-      );
-    } else {
-      System.out.println(
-        "Operands used per file ratio for file2:File1 -> " +
-        operand_file2 *
-        100 /
-        operand_file1 +
-        '%'
-      );
-    }
-  }
-
-  // ?? __________________________________________________________________________
-  // ??______________________ Process for compilation Function ________________________
-  // ?? ___________________________________________________________________________
-
-  public static long ExecSpeedOf_Cprog(String filename, File directory_path)
-    throws InterruptedException {
-    long startTime;
-    long elapsedTime;
-    try {
-      StringBuilder cmd = new StringBuilder("gcc -Wall ");
-      cmd.append(filename);
-
-      startTime = System.nanoTime();
-      ProcessBuilder builder = new ProcessBuilder();
-      builder.command("cmd", "/C", cmd.toString());
-      builder.directory(directory_path);
-      Process p = builder.start();
-
-      try (
-        InputStream in = p.getInputStream();
-        OutputStream out = p.getOutputStream()
-      ) {
-        int exit_code = p.waitFor();
-        if (exit_code == 0) {
-          elapsedTime = System.nanoTime() - startTime;
-          System.out.println("Compiling " + filename + " was a success ^_^");
-          return elapsedTime / 1000000;
-        } else {
-          System.out.println("Error Compiling " + filename + " file .....");
-          return -1;
-        }
-      }
-    } catch (IOException e) {
-      System.out.println("Error in ExecSpeedOf_Cprog :");
-      e.printStackTrace();
-      return -1;
     }
   }
 }
