@@ -15,8 +15,8 @@ import org.apache.commons.text.similarity.*;
 
 public class Main {
 
-  static final int execution_average_constant = 1; // constant to use for 10 times of iteration for average execution speed of single file
-  static final int percentage_above_isPlagried = 50;
+  static final int execution_average_constant = 1; // constant to use for eg: 10 times of iteration for average execution speed of single file
+  static final int percentage_above_isPlagried = 60;
 
   static final String file1_name = "Temp.c";
   static final File file1 = new File(
@@ -37,9 +37,9 @@ public class Main {
     "C:\\Users\\akshr\\Desktop\\University\\6 Fall 2022\\COMP4990-A and B\\JAVA\\SCPD"
   );
 
-  // !!   *************************************************************************
-  // !! __________________________________ Main _____________________________________
-  // !!  **************************************************************************
+  // !!  *****************************************************************************
+  // !!  _________________________________ Main ______________________________________
+  // !!  *****************************************************************************
 
   public static void main(String args[]) {
     System.out.println(
@@ -51,62 +51,68 @@ public class Main {
       */
       String s1 = string_from_file(file1);
       String s2 = string_from_file(file2);
-      /*  Compare_ExecSpeedOf_Cprog_output_only(
-        file1_name,
-        file1_path_for_complier,
-        file2_name,
-        file2_path_for_complier
-      );
 
-       */
-      /*ANCHOR - Semantic Approaches for detecting Plagrism
-       * Radom Walk Algorithm
-       */
-
-      double RandomWalkAlgorithm_score = RandomWalkAlgorithm(s1, s2);
-      double TokenEdit_score = token_edit_distance_algorithm(s1, s2);
+      if (
+        compileCfile(file1_name, file1_path_for_complier) == -1 ||
+        compileCfile(file2_name, file2_path_for_complier) == -1
+      ) {
+        System.out.println(
+          "As one of the file has syntax error: Checking for plagarism could result into miscalculated results"
+        );
+      }
+      double randomWalkAlgorithm_score = RandomWalkAlgorithm(s1, s2);
+      double Levenshtein_score = Levenshtein(s1, s2);
       double jaccard_score = jaccard_algorithm(s1, s2);
-      /*ANCHOR - Structural Approaches for detecting Plagrism
-       * Token Edit distance Algorithm
-       * Fingerprint Comparison Algorithm
-       * Operand Comparison
-       */
-      double Fingerprint_score = fingerprint_comparison(
+      double fingerprint_score = fingerprint_comparison(
         Create_token(file1),
         Create_token(file2)
       );
-      // operand_comparison(
-      //   operator_extraction(file1),
-      //   operator_extraction(file2)
-      // );
 
-      System.out.println("Jaccard score : " + jaccard_score);
-
-      System.out.println(
-        "Radom Walk Algorithm : " +
-        RandomWalkAlgorithm_score +
-        "\nToken Edit Distance Score : " +
-        TokenEdit_score +
-        "\nFingerprint Score : " +
-        Fingerprint_score
-      );
       double[] arr = {
-        RandomWalkAlgorithm_score,
-        TokenEdit_score,
-        Fingerprint_score,
+        randomWalkAlgorithm_score,
+        Levenshtein_score,
+        fingerprint_score,
         jaccard_score,
       };
-      double Similarity = findScore(arr);
+      double final_score = findScore(arr);
       System.out.println(
-        "\n\nSource Code Plagarism Score for given files is : " + Similarity
+        "\n\n\t\t_____________________________________________________________________"
+      );
+      System.out.println(
+        "\t\tNOTE: This program will report the plagarism only if it is above " +
+        percentage_above_isPlagried +
+        "%"
+      );
+      System.out.println(
+        "\t\t_____________________________________________________________________\n\n"
+      );
+      if (percentage_above_isPlagried <= final_score) {
+        System.out.println(
+          "Files are plagarised\nScore :" + (int) final_score + "%"
+        );
+        System.err.println(
+          "See below results for more advance knowledge of each algorithm output\n"
+        );
+        System.out.println(
+          "Jaccard score : " +
+          (int) jaccard_score +
+          "\nRadomWalk Algorithm : " +
+          (int) randomWalkAlgorithm_score +
+          "\nlevenshtein Distance Score : " +
+          (int) Levenshtein_score +
+          "\nFingerprint Score : " +
+          (int) fingerprint_score
+        );
+      } else {
+        System.out.println("Files are less likely to be plagarised:");
+      }
+      System.out.println(
+        "\n________________________________________________________________________________________________________________________________"
       );
     } catch (Exception e) {
-      System.out.println("Error in main : ");
+      System.err.println("Error in main ");
       e.printStackTrace();
     }
-    System.out.println(
-      "\n________________________________________________________________________________________________________________________________"
-    );
   }
 
   /**
@@ -237,7 +243,7 @@ public class Main {
    * @param s2 String input2
    * @return Returns the score
    */
-  public static double token_edit_distance_algorithm(String s1, String s2) {
+  public static double Levenshtein(String s1, String s2) {
     String[] tokens1 = s1.split("\\s+");
     String[] tokens2 = s2.split("\\s+");
     int[][] dp = new int[tokens1.length + 1][tokens2.length + 1];
@@ -412,14 +418,15 @@ public class Main {
 
       file_words = file_words.replaceAll("\\s+", " "); //  Need to get ride of junk words that is tab spaces and new line characters and replacing it with single space.
     } catch (Exception e) {
-      System.out.println("Error in string_from_file : ");
-      System.err.println(e);
+      System.err.println("Error in string_from_file : ");
+      e.printStackTrace();
     }
     return file_words;
   }
 
   /**
    * This function takes in two Hashmap of operator and compares then
+   * @deprecated need more work
    * @param map1
    * @param map2
    */
@@ -458,17 +465,14 @@ public class Main {
     }
   }
 
-  // ?? __________________________________________________________________________
-  // ??______________________ Process for compilation Function ________________________
-  // ?? ___________________________________________________________________________
   /**
-   * @deprecated Not effecitive to use at the moment
+   *This function takes in filename and path of the file and complies the program and returns compile time else -1
    * @param filename
    * @param directory_path
-   * @return
+   * @return time for complie the file using cmd
    * @throws InterruptedException
    */
-  public static long ExecSpeedOf_Cprog(String filename, File directory_path)
+  public static long compileCfile(String filename, File directory_path)
     throws InterruptedException {
     long startTime;
     long elapsedTime;
@@ -500,24 +504,41 @@ public class Main {
       System.out.println("Error in ExecSpeedOf_Cprog :");
       e.printStackTrace();
       return -1;
+    } catch (Exception e) {
+      System.err.println("Unknown erro in compliecFile function");
+      e.printStackTrace();
+      return -1;
     }
   }
 
-  public static void Compare_ExecSpeedOf_Cprog_output_only(
+  // ?? __________________________________________________________________________
+  // ??______________________ Process for compilation Function ________________________
+  // ?? ___________________________________________________________________________
+  /**
+   * Initial purpose was to use the complie time of each program file and compute them but
+   * it turned out to be ineffective as compile time could be different each time we run same program
+   * @deprecated Not effecitive to use at the moment
+   * @param filename1
+   * @param directory_path1
+   * @param filename2
+   * @param directory_path2
+   * @throws InterruptedException
+   */
+  public static void Compare_compileCfile_output_only(
     String filename1,
     File directory_path1,
     String filename2,
     File directory_path2
   ) throws InterruptedException {
     // System.out.println(
-    //   "_______________________________________________Compare_ExecSpeedOf_Cprog_output_only _______________________________________________"
+    //   "_______________________________________________Compare_compileCfile_output_only _______________________________________________"
     // );
     long average_time_file1 = 0;
     long average_time_file2 = 0;
     boolean compilation_success = true;
     for (int i = 0; i < execution_average_constant; i++) {
-      average_time_file1 += ExecSpeedOf_Cprog(filename1, directory_path1);
-      average_time_file2 += ExecSpeedOf_Cprog(filename2, directory_path2);
+      average_time_file1 += compileCfile(filename1, directory_path1);
+      average_time_file2 += compileCfile(filename2, directory_path2);
       if (average_time_file1 == -1 || average_time_file2 == -1) {
         compilation_success = false;
         System.out.println(
