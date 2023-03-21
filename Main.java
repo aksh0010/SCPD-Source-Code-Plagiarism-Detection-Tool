@@ -126,19 +126,50 @@ public class Main {
 
   public static double findScore(double arr[]) {
     Arrays.sort(arr);
-    int middleValues_index = arr.length / 2;
-    double middleValues;
-
+    double middleValues = 0;
+    double middleValues_index = (double) (arr.length / 2);
+    // System.out.println("Middle value index = " + middleValues_index);
     if (middleValues_index % 2 == 0) {
       middleValues =
-        (arr[middleValues_index - 1] + arr[middleValues_index]) / 2.0;
+        (arr[(int) middleValues_index - 1] + arr[(int) middleValues_index]) /
+        2.0;
     } else {
-      middleValues = arr[middleValues_index - 1];
+      middleValues = arr[(int) middleValues_index - 1];
     }
 
-    double diff_max_value = arr[arr.length - 1] - middleValues;
-    double diff_min_value = arr[0] - middleValues;
-
+    double diff_max_value = Math.abs(arr[arr.length - 1] - middleValues);
+    double diff_min_value = Math.abs(middleValues - arr[0]);
+    /*
+     * If the differences are too high(15%) then send the average of all
+     * algorithms else send the most acurate one
+     */
+    if (
+      Math.abs(arr[arr.length - 1] - arr[0]) >= 15 &&
+      Math.abs(arr[arr.length - 1] - arr[0]) < 20
+    ) {
+      middleValues = 0;
+      for (int i = 0; i < arr.length; i++) {
+        middleValues = middleValues + arr[i];
+      }
+      middleValues = middleValues / arr.length;
+      return middleValues;
+    }
+    /*
+     * If difference is greater than 20 % then return the lowest percentage
+     *
+     */
+    if (arr[arr.length - 1] - arr[0] >= 20) {
+      return arr[0];
+    }
+    /*
+     * if the difference is less than 5% return middle value
+     */
+    if (Math.abs(arr[arr.length - 1] - arr[0]) <= 5) {
+      return middleValues;
+    }
+    /*
+    if none of the above then return that mean range is 5-15% then do belo
+     */
     if (diff_max_value < diff_min_value) {
       return arr[arr.length - 1]; // returning the highest score as it is closest to mean
     } else {

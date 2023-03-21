@@ -1,23 +1,23 @@
 #include <stdio.h>
-
+/*
+Code for factorial 
+*/
 int main()
 {
-  int c, n, f = 1;
-  printf("Enter a number to calculate its factorial\n");
-  scanf("%d", &n);
-  for (c = 1; c <= n; c++)
-    f = f * c;
-  printf("Factorial of %d = %d\n", n, f);
+  printf("Enter a number to loop \n");
+  int num;
+  scanf("%d", &num);
 
-  switch (f)
+  if (num > 0)
   {
-  case 10:
-    printf("Hello boy\n");
-    break;
 
-  default:
-    printf("Hello girl\n");
-    break;
+    for (int count = 0; count < num; count++)
+    {
+      printf("%d\n", count);
+    }
+    printf("Bye..\n");
   }
+  
+
   return 0;
 }
