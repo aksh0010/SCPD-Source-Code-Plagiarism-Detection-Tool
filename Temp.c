@@ -1,23 +1,35 @@
 #include <stdio.h>
-/*
-Code for factorial 
-*/
+#define max_num 500
+
 int main()
 {
-  printf("Enter a number to loop \n");
-  int num;
-  scanf("%d", &num);
-
-  if (num > 0)
+  int temp = 0;
+  int temp2 = 1;
+  int next_num, i = 2;
+  do
   {
+    next_num = temp + temp2;
+    temp = temp2;
+    temp2 = next_num;
+    i++;
 
-    for (int count = 0; count < num; count++)
+    // Check if the next_num is a prime number and less than max_num
+    int is_prime = 1;
+    for (int j = 2; j < next_num; j++)
     {
-      printf("%d\n", count);
+      if (next_num % j == 0)
+      {
+        is_prime = 0;
+        break;
+      }
     }
-    printf("Bye..\n");
-  }
-  
+
+    // Print the Fibonacci number if it is a prime number and less than max_num
+    if (is_prime && next_num < max_num)
+    {
+      printf("%d ", next_num);
+    }
+  } while (next_num < max_num);
 
   return 0;
 }

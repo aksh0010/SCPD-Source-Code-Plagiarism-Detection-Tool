@@ -1,33 +1,38 @@
 #include <stdio.h>
-/*
-Code for prime number or not
-*/
-int main() {
 
-  int n, i, flag = 0;
-  printf("Enter a positive integer: ");
-  scanf("%d", &n);
+// Recursive function to compute the nth Fibonacci number
+int fibonacci(int n)
+{
+  return (n <= 1) ? n : fibonacci(n - 1) + fibonacci(n - 2);
+}
 
-  // 0 and 1 are not prime numbers
-  // change flag to 1 for non-prime number
-  if (n == 0 || n == 1)
-    flag = 1;
-
-  for (i = 2; i <= n / 2; ++i) {
-
-    // if n is divisible by i, then n is not prime
-    // change flag to 1 for non-prime number
-    if (n % i == 0) {
-      flag = 1;
+int main()
+{
+  int n = 2, max_num = 300;
+  while (1)
+  {
+    int next_num = fibonacci(n);
+    if (next_num >= max_num)
+    {
       break;
     }
-  }
 
-  // flag is 0 for prime numbers
-  if (flag == 0)
-    printf("%d is a prime number.", n);
-  else
-    printf("%d is not a prime number.", n);
+    // Check if the next_num is a prime number
+    int is_prime = (next_num < 1) ? 0 : 1;
+    int i = 2;
+    while (i < next_num && is_prime)
+    {
+      is_prime = (next_num % i != 0) ? 1 : 0;
+      i++;
+    }
+
+    if (is_prime)
+    {
+      printf("%d ", next_num);
+    }
+
+    n++;
+  }
 
   return 0;
 }
